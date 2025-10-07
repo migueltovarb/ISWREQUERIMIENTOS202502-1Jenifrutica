@@ -57,9 +57,12 @@ def existe_correo(contactos, correo):
 
 
 def registrar_contacto(contactos):
-    print("\n--- Registrar nuevo contacto ---")
+    print("\n ★ Registrar nuevo contacto  ★")
     nombre = input("Nombre: ").strip()
     telefono = input("Número de teléfono: ").strip()
+    if len(telefono) > 20:
+        print("Error: el número de teléfono no puede superar los 20 caracteres.")
+        return
     correo = input("Correo electrónico: ").strip()
     cargo = input("Cargo en la empresa: ").strip()
     if existe_correo(contactos, correo):
@@ -73,16 +76,32 @@ def registrar_contacto(contactos):
 
 
 def eliminar_contacto(contactos):
-    print("\n--- Eliminar contacto ---")
-    correo = input("Ingrese el correo electrónico del contacto a eliminar: ").strip()
-    encontrados = [c for c in contactos if c.correo.lower() == correo.lower()]
+    print("\n ★ Eliminar contacto ★ ")
+    criterio = input("Ingrese el nombre, correo electrónico o número de teléfono del contacto a eliminar: ").strip().lower()
+    encontrados = [
+        c for c in contactos
+        if criterio == c.correo.lower()
+        or criterio == c.nombre.lower()
+        or criterio == c.telefono.lower()
+    ]
     if not encontrados:
         print("Error: este contacto no existe.")
         return
-    print(f"¿Está seguro que desea eliminar el contacto '{encontrados[0].nombre}'? (s/n)")
+    print(f"Se encontraron {len(encontrados)} contacto(s):")
+    for idx, c in enumerate(encontrados, 1):
+        print(f"{idx}. Nombre: {c.nombre}, Teléfono: {c.telefono}, Correo: {c.correo}, Cargo: {c.cargo}")
+    if len(encontrados) > 1:
+        seleccion = input("Ingrese el número del contacto que desea eliminar: ").strip()
+        if not seleccion.isdigit() or int(seleccion) < 1 or int(seleccion) > len(encontrados):
+            print("Selección inválida.")
+            return
+        contacto_a_eliminar = encontrados[int(seleccion) - 1]
+    else:
+        contacto_a_eliminar = encontrados[0]
+    print(f"¿Está seguro que desea eliminar el contacto '{contacto_a_eliminar.nombre}'? (s/n)")
     confirm = input().strip().lower()
     if confirm == "s":
-        contactos.remove(encontrados[0])
+        contactos.remove(contacto_a_eliminar)
         guardar_contactos(contactos)
         print("Contacto eliminado exitosamente.")
     else:
@@ -91,7 +110,7 @@ def eliminar_contacto(contactos):
 
 
 def modificar_contacto(contactos):
-    print("\n--- Modificar información de contacto ---")
+    print("\n ★ Modificar información de contacto ★ ")
     correo = input("Ingrese el correo electrónico del contacto a modificar: ").strip()
     encontrados = [c for c in contactos if c.correo.lower() == correo.lower()]
     if not encontrados:
@@ -99,13 +118,16 @@ def modificar_contacto(contactos):
         return
     contacto = encontrados[0]
     print(f"Contacto actual: Nombre: {contacto.nombre}, Teléfono: {contacto.telefono}, Correo: {contacto.correo}, Cargo: {contacto.cargo}")
-    print("¿Está seguro que desea modificar este contacto? (s/n)")
+    print("¿Está seguro que desea modificar la información de este contacto? (si/no)")
     confirm = input().strip().lower()
-    if confirm != "s":
+    if confirm != "si":
         print("Acción cancelada.")
         return
     nombre = input(f"Nuevo nombre [{contacto.nombre}]: ").strip() or contacto.nombre
     telefono = input(f"Nuevo teléfono [{contacto.telefono}]: ").strip() or contacto.telefono
+    if len(telefono) > 20:
+        print("Error: el número de teléfono no puede superar los 20 caracteres.")
+        return
     nuevo_correo = input(f"Nuevo correo [{contacto.correo}]: ").strip() or contacto.correo
     cargo = input(f"Nuevo cargo [{contacto.cargo}]: ").strip() or contacto.cargo
     if nuevo_correo != contacto.correo and existe_correo(contactos, nuevo_correo):
@@ -121,7 +143,7 @@ def modificar_contacto(contactos):
 
 
 def listar_contactos(contactos):
-    print("\n--- Lista de contactos ---")
+    print("\n ★ Lista de contactos  ★")
     if not contactos:
         print("No hay contactos registrados.")
         return
@@ -131,7 +153,7 @@ def listar_contactos(contactos):
 
 
 def buscar_contactos_menu(contactos):
-    print("\n--- Buscar contacto ---")
+    print("\n ★ Buscar contacto  ★")
     criterio = input("Ingrese nombre o correo a buscar: ").strip()
     resultados = buscar_contacto(contactos, criterio)
     if not resultados:
