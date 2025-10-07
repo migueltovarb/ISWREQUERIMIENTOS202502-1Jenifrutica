@@ -18,6 +18,7 @@ class Contacto:
             "cargo": self.cargo
         }
 
+    @staticmethod
     def from_dict(data):
         return Contacto(
             data["nombre"],
@@ -30,6 +31,9 @@ class Contacto:
 
 def cargar_contactos():
     if not os.path.exists(ARCHIVO_CONTACTOS):
+        # Crear el archivo vacío si no existe
+        with open(ARCHIVO_CONTACTOS, "w", encoding="utf-8") as f:
+            json.dump([], f)
         return []
     try:
         with open(ARCHIVO_CONTACTOS, "r", encoding="utf-8") as f:
@@ -41,8 +45,11 @@ def cargar_contactos():
 
 
 def guardar_contactos(contactos):
-    with open(ARCHIVO_CONTACTOS, "w", encoding="utf-8") as f:
-        json.dump([c.to_dict() for c in contactos], f, ensure_ascii=False, indent=2)
+    try:
+        with open(ARCHIVO_CONTACTOS, "w", encoding="utf-8") as f:
+            json.dump([c.to_dict() for c in contactos], f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Error al guardar contactos: {e}")
 
 
 
@@ -53,6 +60,16 @@ def buscar_contacto(contactos, criterio):
 
 def existe_correo(contactos, correo):
     return any(c.correo.lower() == correo.lower() for c in contactos)
+
+
+
+def existe_nombre(contactos, nombre):
+    return any(c.nombre.lower() == nombre.lower() for c in contactos)
+
+
+
+def existe_telefono(contactos, telefono):
+    return any(c.telefono.lower() == telefono.lower() for c in contactos)
 
 
 
@@ -67,6 +84,9 @@ def registrar_contacto(contactos):
     cargo = input("Cargo en la empresa: ").strip()
     if existe_correo(contactos, correo):
         print("Error: ya existe un contacto con ese correo electrónico.")
+        return
+    if existe_nombre(contactos, nombre) and existe_telefono(contactos, telefono):
+        print("Error: ya existe un contacto con ese nombre y número de teléfono.")
         return
     contacto = Contacto(nombre, telefono, correo, cargo)
     contactos.append(contacto)
@@ -111,12 +131,25 @@ def eliminar_contacto(contactos):
 
 def modificar_contacto(contactos):
     print("\n ★ Modificar información de contacto ★ ")
-    correo = input("Ingrese el correo electrónico del contacto a modificar: ").strip()
-    encontrados = [c for c in contactos if c.correo.lower() == correo.lower()]
+    criterio = input("Ingrese el nombre o correo electrónico del contacto a modificar: ").strip().lower()
+    encontrados = [
+        c for c in contactos
+        if criterio == c.correo.lower() or criterio == c.nombre.lower()
+    ]
     if not encontrados:
         print("Error: este contacto no existe.")
         return
-    contacto = encontrados[0]
+    if len(encontrados) > 1:
+        print(f"Se encontraron {len(encontrados)} contacto(s):")
+        for idx, c in enumerate(encontrados, 1):
+            print(f"{idx}. Nombre: {c.nombre}, Teléfono: {c.telefono}, Correo: {c.correo}, Cargo: {c.cargo}")
+        seleccion = input("Ingrese el número del contacto que desea modificar: ").strip()
+        if not seleccion.isdigit() or int(seleccion) < 1 or int(seleccion) > len(encontrados):
+            print("Selección inválida.")
+            return
+        contacto = encontrados[int(seleccion) - 1]
+    else:
+        contacto = encontrados[0]
     print(f"Contacto actual: Nombre: {contacto.nombre}, Teléfono: {contacto.telefono}, Correo: {contacto.correo}, Cargo: {contacto.cargo}")
     print("¿Está seguro que desea modificar la información de este contacto? (si/no)")
     confirm = input().strip().lower()

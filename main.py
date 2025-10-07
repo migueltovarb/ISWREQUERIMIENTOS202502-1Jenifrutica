@@ -23,10 +23,13 @@ def main():
         opcion = input("Seleccione una opción: ").strip()
         if opcion == "1":
             registrar_contacto(contactos)
+            contactos = cargar_contactos()
         elif opcion == "2":
             modificar_contacto(contactos)
+            contactos = cargar_contactos()
         elif opcion == "3":
             eliminar_contacto(contactos)
+            contactos = cargar_contactos()
         elif opcion == "4":
             listar_contactos(contactos)
         elif opcion == "5":
