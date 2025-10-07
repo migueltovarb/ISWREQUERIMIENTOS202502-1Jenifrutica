@@ -8,7 +8,7 @@ from contactos import (
 )
 
 def mostrar_menu():
-    print("\n--- Menú de Contactos ---")
+    print("\n-★- Menú de Contactos -★-")
     print("1. Registrar nuevo contacto")
     print("2. Modificar contacto")
     print("3. Eliminar contacto")
