@@ -1,4 +1,4 @@
-# Sistema de Gestión de Notas - Django
+# Sistema de Gestión de Notas
 
 ## Descripción
 Sistema completo de gestión académica desarrollado en Django que permite la administración de estudiantes, profesores, cursos, calificaciones y notificaciones con diferentes roles de usuario.
