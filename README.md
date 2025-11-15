@@ -5,12 +5,12 @@ Sistema completo de gestión académica desarrollado en Django que permite la ad
 
 ## Características Principales
 
-### 🎯 Roles de Usuario
+### Roles de Usuario
 - **Administrador**: Gestión completa del sistema
 - **Profesor**: Registro de calificaciones y gestión de cursos
 - **Estudiante**: Consulta de calificaciones y notificaciones
 
-### 📚 Funcionalidades por Rol
+### Funcionalidades por Rol
 
 #### Administrador
 - Dashboard con estadísticas del sistema
@@ -33,7 +33,7 @@ Sistema completo de gestión académica desarrollado en Django que permite la ad
 - Perfil personal editable
 - Estadísticas de rendimiento académico
 
-### 🎨 Interfaz de Usuario
+### Interfaz de Usuario
 - Diseño moderno y responsivo
 - Paleta de colores profesional
 - Navegación intuitiva
