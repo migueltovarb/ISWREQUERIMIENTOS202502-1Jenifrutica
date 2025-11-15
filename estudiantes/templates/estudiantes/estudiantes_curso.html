@@ -1,0 +1,245 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Estudiantes del Curso - Sistema de Gestión de Notas{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #89004f; margin-bottom: 2rem;">Estudiantes de Mis Cursos</h2>
+    
+    <!-- Selector de curso -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Seleccionar Curso</h3>
+        </div>
+        <div class="card-body">
+            <form method="get" style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="curso">Curso:</label>
+                    <select name="curso" id="curso" class="form-control" style="width: auto;" onchange="this.form.submit()">
+                        <option value="">Seleccione un curso</option>
+                        {% for curso in cursos_disponibles %}
+                            <option value="{{ curso.id }}" 
+                                {% if curso_seleccionado and curso_seleccionado.id == curso.id %}selected{% endif %}>
+                                {{ curso.nombre }} ({{ curso.codigo }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                {% if curso_seleccionado %}
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{% url 'registrar_calificacion' curso_seleccionado.id %}" 
+                       class="btn btn-primary">
+                        Registrar Calificación
+                    </a>
+                    <a href="{% url 'dashboard_profesor' %}" class="btn btn-secondary">
+                        Ver Todos los Cursos
+                    </a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Información del curso seleccionado -->
+    {% if curso_seleccionado %}
+    <div class="card">
+        <div class="card-header" style="background: #89004f; color: white;">
+            <h3 style="margin: 0;">{{ curso_seleccionado.nombre }}</h3>
+            <p style="margin: 0; opacity: 0.9;">Código: {{ curso_seleccionado.codigo }}</p>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="text-align: center; padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
+                    <h3 style="color: #89004f; margin: 0;">{{ total_estudiantes }}</h3>
+                    <p style="margin: 0; color: #666;">Estudiantes Inscritos</p>
+                </div>
+                <div style="text-align: center; padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
+                    <h3 style="color: #89004f; margin: 0;">{{ total_calificaciones }}</h3>
+                    <p style="margin: 0; color: #666;">Calificaciones Registradas</p>
+                </div>
+                <div style="text-align: center; padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
+                    <h3 style="color: #89004f; margin: 0;">{{ promedio_curso|floatformat:1 }}</h3>
+                    <p style="margin: 0; color: #666;">Promedio del Curso</p>
+                </div>
+                <div style="text-align: center; padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
+                    <h3 style="color: #89004f; margin: 0;">{{ estudiantes_aprobados }}</h3>
+                    <p style="margin: 0; color: #666;">Estudiantes Aprobados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de estudiantes -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Lista de Estudiantes</h3>
+        </div>
+        <div class="card-body">
+            {% if estudiantes %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Estudiante</th>
+                                <th>Email</th>
+                                <th>Calificaciones</th>
+                                <th>Promedio</th>
+                                <th>Estado</th>
+                                <th>Última Calificación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for estudiante_info in estudiantes %}
+                            <tr>
+                                <td>
+                                    <strong>{{ estudiante_info.estudiante.first_name }} {{ estudiante_info.estudiante.last_name }}</strong><br>
+                                    <small style="color: #666;">{{ estudiante_info.estudiante.username }}</small>
+                                </td>
+                                <td>{{ estudiante_info.estudiante.email }}</td>
+                                <td style="text-align: center;">
+                                    <span style="background-color: #c33b80; color: white; padding: 0.25rem 0.5rem; border-radius: 10px; font-size: 0.9rem;">
+                                        {{ estudiante_info.total_calificaciones }}
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if estudiante_info.promedio %}
+                                        <span style="font-weight: bold; font-size: 1.1rem; color: 
+                                            {% if estudiante_info.promedio >= 4.0 %}#28a745
+                                            {% elif estudiante_info.promedio >= 3.0 %}#ffc107
+                                            {% else %}#dc3545{% endif %};">
+                                            {{ estudiante_info.promedio|floatformat:1 }}
+                                        </span>
+                                    {% else %}
+                                        <span style="color: #666;">Sin calificaciones</span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if estudiante_info.promedio %}
+                                        <span style="padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem; color: white;
+                                            background-color: {% if estudiante_info.promedio >= 3.0 %}#28a745{% else %}#dc3545{% endif %};">
+                                            {% if estudiante_info.promedio >= 3.0 %}Aprobado{% else %}Reprobado{% endif %}
+                                        </span>
+                                    {% else %}
+                                        <span style="padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem; color: white; background-color: #6c757d;">
+                                            Pendiente
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if estudiante_info.ultima_calificacion %}
+                                        <span style="font-weight: bold; color:
+                                            {% if estudiante_info.ultima_calificacion.nota >= 4.0 %}#28a745
+                                            {% elif estudiante_info.ultima_calificacion.nota >= 3.0 %}#ffc107
+                                            {% else %}#dc3545{% endif %};">
+                                            {{ estudiante_info.ultima_calificacion.nota }}
+                                        </span><br>
+                                        <small style="color: #666;">{{ estudiante_info.ultima_calificacion.fecha_registro|date:"d/m/Y" }}</small><br>
+                                        <small style="color: #666;">{{ estudiante_info.ultima_calificacion.get_tipo_evaluacion_display }}</small>
+                                    {% else %}
+                                        <span style="color: #666;">Sin calificaciones</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.25rem; flex-direction: column;">
+                                        <!-- existente: Calificar -->
+                                        <a href="{% url 'registrar_calificacion' curso_seleccionado.id %}" 
+                                           class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                            Calificar
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 2rem;">
+                    No hay estudiantes inscritos en este curso.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Estadísticas adicionales del curso -->
+    {% if estudiantes %}
+    <div class="card">
+        <div class="card-header">
+            <h3>Estadísticas del Curso</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
+                    <h4 style="color: #89004f; margin-bottom: 0.5rem;">Distribución de Calificaciones</h4>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li><strong>Excelente (4.6-5.0):</strong> {{ stats.excelente }} estudiantes</li>
+                        <li><strong>Sobresaliente (4.0-4.5):</strong> {{ stats.sobresaliente }} estudiantes</li>
+                        <li><strong>Bueno (3.5-3.9):</strong> {{ stats.bueno }} estudiantes</li>
+                        <li><strong>Aceptable (3.0-3.4):</strong> {{ stats.aceptable }} estudiantes</li>
+                        <li><strong>Insuficiente (0.0-2.9):</strong> {{ stats.insuficiente }} estudiantes</li>
+                    </ul>
+                </div>
+                
+                <div style="padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
+                    <h4 style="color: #89004f; margin-bottom: 0.5rem;">Resumen General</h4>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li><strong>Nota más alta:</strong> {{ stats.nota_maxima }}</li>
+                        <li><strong>Nota más baja:</strong> {{ stats.nota_minima }}</li>
+                        <li><strong>Promedio general:</strong> {{ promedio_curso|floatformat:1 }}</li>
+                        <li><strong>Tasa de aprobación:</strong> {{ stats.tasa_aprobacion|floatformat:1 }}%</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Mostrar todos los cursos si no hay uno seleccionado -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Mis Cursos</h3>
+        </div>
+        <div class="card-body">
+            {% if cursos_disponibles %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    {% for curso in cursos_disponibles %}
+                    <div class="card" style="margin-bottom: 0;">
+                        <div class="card-header" style="background: #ff69b4; color: #89004f;">
+                            <h4 style="margin: 0;">{{ curso.nombre }}</h4>
+                            <p style="margin: 0; opacity: 0.8;">{{ curso.codigo }}</p>
+                        </div>
+                        <div class="card-body">
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <a href="{% url 'estudiantes_curso' curso.id %}" 
+                                   class="btn btn-primary" style="flex: 1; text-align: center;">
+                                    Ver Estudiantes
+                                </a>
+                                <a href="{% url 'registrar_calificacion' curso.id %}" 
+                                   class="btn btn-secondary" style="flex: 1; text-align: center;">
+                                    Calificar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 2rem;">
+                    No tienes cursos asignados actualmente.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Función para exportar datos (placeholder)
+    function exportarDatos() {
+        alert('Función de exportación en desarrollo.\n\nEsta función permitirá exportar los datos del curso a Excel o PDF.');
+    }
+</script>
+{% endblock %}

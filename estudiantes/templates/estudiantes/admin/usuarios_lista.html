@@ -1,0 +1,90 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #1B3C53; margin-bottom: 2rem;">👥 Gestión de Usuarios</h2>
+    
+    <!-- Botón para crear nuevo usuario -->
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'admin_usuario_crear' %}" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">
+            ➕ Crear Nuevo Usuario
+        </a>
+    </div>
+    
+    <!-- Tabla de usuarios -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Lista de Usuarios del Sistema</h3>
+        </div>
+        <div class="card-body">
+            {% if usuarios %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Último Acceso</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usuario in usuarios %}
+                            <tr>
+                                <td><strong>{{ usuario.first_name }} {{ usuario.last_name }}</strong></td>
+                                <td>{{ usuario.username }}</td>
+                                <td>{{ usuario.email }}</td>
+                                <td>
+                                    <span style="background-color: 
+                                        {% if usuario.rol == 'estudiante' %}#6B9BD1
+                                        {% elif usuario.rol == 'profesor' %}#D2C1B6
+                                        {% else %}#1B3C53{% endif %}; 
+                                        color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem;">
+                                        {{ usuario.get_rol_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="color: {% if usuario.activo %}#28a745{% else %}#dc3545{% endif %}; font-weight: bold;">
+                                        {% if usuario.activo %}Activo{% else %}Inactivo{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if usuario.last_login %}
+                                        {{ usuario.last_login|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                        <em style="color: #999;">Nunca</em>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <a href="{% url 'admin_usuario_editar' usuario.id %}" 
+                                           class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.85rem;">
+                                            ✏️ Editar
+                                        </a>
+                                        {% if usuario.id != user.id %}
+                                        <a href="{% url 'admin_usuario_eliminar' usuario.id %}" 
+                                           class="btn btn-danger" style="padding: 0.25rem 0.75rem; font-size: 0.85rem;">
+                                            🗑️ Eliminar
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 3rem;">
+                    No hay usuarios registrados en el sistema.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

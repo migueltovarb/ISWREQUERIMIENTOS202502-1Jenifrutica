@@ -1,0 +1,276 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Dashboard Administrador - Sistema de Gestión de Notas{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #1b3c53; margin-bottom: 2rem;">Panel de Administración - {{ user.first_name }} {{ user.last_name }}</h2>
+    
+    <!-- Estadísticas generales del sistema -->
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_usuarios }}</div>
+            <div class="stat-label">Usuarios Registrados</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ total_estudiantes }}</div>
+            <div class="stat-label">Estudiantes</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ total_profesores }}</div>
+            <div class="stat-label">Profesores</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ total_cursos }}</div>
+            <div class="stat-label">Cursos Activos</div>
+        </div>
+    </div>
+
+    <!-- Segunda fila de estadísticas -->
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_calificaciones }}</div>
+            <div class="stat-label">Calificaciones Registradas</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ inscripciones_activas }}</div>
+            <div class="stat-label">Inscripciones Activas</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ promedio_sistema|floatformat:1 }}</div>
+            <div class="stat-label">Promedio General del Sistema</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ notificaciones_pendientes }}</div>
+            <div class="stat-label">Notificaciones Pendientes</div>
+        </div>
+    </div>
+
+    <!-- Acciones administrativas -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Acciones Administrativas</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                <!-- Usuarios -->
+                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                    <h4 style="margin-top: 0; color:#1b3c53;">Usuarios</h4>
+                    <div style="display:flex; gap:.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'admin_usuarios_lista' %}" class="btn btn-secondary"> Ver Usuarios</a>
+                        <a href="{% url 'admin_usuario_crear' %}" class="btn btn-primary">+ Nuevo Usuario</a>
+                    </div>
+                </div>
+                <!-- Cursos -->
+                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                    <h4 style="margin-top: 0; color:#1b3c53;">Cursos</h4>
+                    <div style="display:flex; gap:.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'admin_cursos_lista' %}" class="btn btn-secondary"> Ver Cursos</a>
+                        <a href="{% url 'admin_curso_crear' %}" class="btn btn-primary">+ Nuevo Curso</a>
+                    </div>
+                </div>
+                <!-- Inscripciones -->
+                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                    <h4 style="margin-top: 0; color:#1b3c53;">Inscripciones</h4>
+                    <div style="display:flex; gap:.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'admin_inscripciones_lista' %}" class="btn btn-secondary"> Ver Inscripciones</a>
+                        <a href="{% url 'admin_inscripcion_crear' %}" class="btn btn-primary">+ Nueva Inscripción</a>
+                    </div>
+                </div>
+                <!-- Calificaciones -->
+                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                    <h4 style="margin-top: 0; color:#1b3c53;">Calificaciones</h4>
+                    <div style="display:flex; gap:.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'admin_calificaciones_lista' %}" class="btn btn-secondary"> Ver Calificaciones</a>
+                        <a href="{% url 'admin_historial_lista' %}" class="btn btn-primary"> Ver Historial</a>
+                    </div>
+                </div>
+                <!-- Reportes -->
+                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                    <h4 style="margin-top: 0; color:#1b3c53;">Reportes</h4>
+                    <div style="display:flex; gap:.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'admin_reportes' %}" class="btn btn-secondary">Abrir Reportes</a>
+                    </div>
+                </div>
+                <!-- Django Admin (opcional) -->
+                <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem;">
+                    <h4 style="margin-top: 0; color:#1b3c53;">Django Admin</h4>
+                    <a href="/admin/" class="btn btn-secondary">⚙️ Abrir Django Admin</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de actividad reciente -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Actividad Reciente del Sistema</h3>
+        </div>
+        <div class="card-body">
+            {% if actividad_reciente %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Usuario</th>
+                                <th>Acción</th>
+                                <th>Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for actividad in actividad_reciente %}
+                            <tr>
+                                <td>{{ actividad.fecha|date:"d/m/Y H:i" }}</td>
+                                <td>{{ actividad.usuario }}</td>
+                                <td>{{ actividad.accion }}</td>
+                                <td>{{ actividad.detalles }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #5C6F82; padding: 2rem;">
+                    No hay actividad reciente registrada.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Usuarios por rol -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Distribución de Usuarios por Rol</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div style="text-align: center; padding: 1rem; background: #d2c1b6; border-radius: 10px; color: white;">
+                    <h3>{{ estudiantes_count }}</h3>
+                    <p>Estudiantes</p>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: #456882; border-radius: 10px; color: white;">
+                    <h3>{{ profesores_count }}</h3>
+                    <p>Profesores</p>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: #1b3c53; border-radius: 10px; color: white;">
+                    <h3>{{ administradores_count }}</h3>
+                    <p>Administradores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cursos más activos -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Cursos Más Activos</h3>
+        </div>
+        <div class="card-body">
+            {% if cursos_activos %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th>Código</th>
+                                <th>Profesor</th>
+                                <th>Estudiantes</th>
+                                <th>Calificaciones</th>
+                                <th>Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for curso in cursos_activos %}
+                            <tr>
+                                <td>{{ curso.nombre }}</td>
+                                <td>{{ curso.codigo }}</td>
+                                <td>{{ curso.profesor.first_name }} {{ curso.profesor.last_name }}</td>
+                                <td>{{ curso.estudiantes_count }}</td>
+                                <td>{{ curso.calificaciones_count }}</td>
+                                <td>
+                                    <span class="promedio {% if curso.promedio >= 3.0 %}promedio-aprobado{% else %}promedio-reprobado{% endif %}">
+                                        {{ curso.promedio|floatformat:1 }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #5C6F82; padding: 2rem;">
+                    No hay cursos activos registrados.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Notificaciones del sistema -->
+    {% if notificaciones_sistema %}
+    <div class="card">
+        <div class="card-header">
+            <h3>Notificaciones del Sistema</h3>
+        </div>
+        <div class="card-body">
+            <div class="notification-panel">
+                {% for notificacion in notificaciones_sistema %}
+                <div class="notification-item {% if not notificacion.leida %}unread{% endif %}">
+                    <h4 style="color: #1b3c53; margin-bottom: 0.5rem;">{{ notificacion.titulo }}</h4>
+                    <p style="margin-bottom: 0.5rem;">{{ notificacion.mensaje }}</p>
+                    <small style="color: #5C6F82;">{{ notificacion.fecha_creacion|date:"d/m/Y H:i" }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-2">
+                <a href="{% url 'notificaciones' %}" class="btn btn-secondary">
+                    Ver Todas las Notificaciones
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Información del administrador -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Mi Información</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div>
+                    <strong style="color: #1b3c53;">Nombre Completo:</strong><br>
+                    {{ user.first_name }} {{ user.last_name }}
+                </div>
+                <div>
+                    <strong style="color: #1b3c53;">Email:</strong><br>
+                    {{ user.email }}
+                </div>
+                <div>
+                    <strong style="color: #1b3c53;">Usuario:</strong><br>
+                    {{ user.username }}
+                </div>
+                <div>
+                    <strong style="color: #1b3c53;">Rol:</strong><br>
+                    {{ user.get_rol_display }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // CSRF desde cookie
+    function getCookie(name) {
+        const v = (`; ${document.cookie}`).split(`; ${name}=`);
+        if (v.length === 2) return v.pop().split(';').shift();
+    }
+    const csrftoken = getCookie('csrftoken');
+</script>
+{% endblock %}

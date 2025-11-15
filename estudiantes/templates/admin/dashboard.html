@@ -1,0 +1,117 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header text-center">
+    <h1>Panel de Administración</h1>
+    <p>Bienvenido, {{ user.get_full_name }}</p>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="stat-card" style="background: #1B3C53;">
+            <p>Estudiantes</p>
+            <h3>{{ total_estudiantes }}</h3>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card" style="background: #456882;">
+            <p>Profesores</p>
+            <h3>{{ total_profesores }}</h3>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card" style="background: #6B9BD1;">
+            <p>Cursos</p>
+            <h3>{{ total_cursos }}</h3>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card" style="background: #D2C1B6; color: #1B3C53;">
+            <p>Inscripciones</p>
+            <h3>{{ total_inscripciones }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #1B3C53;">Acciones Rápidas</h5>
+                <div class="row mt-3">
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'admin_usuario_crear' %}" class="btn btn-lg" style="width: 100%; background: #1B3C53; color: white; border: none;">
+                            Nuevo Usuario
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'admin_curso_crear' %}" class="btn btn-lg" style="width: 100%; background: #456882; color: white; border: none;">
+                            Nuevo Curso
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'admin_inscripcion_crear' %}" class="btn btn-lg" style="width: 100%; background: #6B9BD1; color: white; border: none;">
+                            Nueva Inscripción
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header" style="background: #1B3C53; color: white;">
+                <h5>Estadísticas Generales</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Total de Calificaciones
+                        <span class="badge badge-pill" style="background-color: #1B3C53; color: white; padding: 0.5rem 1rem;">{{ total_calificaciones }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Usuarios Activos
+                        <span class="badge badge-pill" style="background-color: #6B9BD1; color: white; padding: 0.5rem 1rem;">{{ total_estudiantes|add:total_profesores }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Cursos Activos
+                        <span class="badge badge-pill" style="background-color: #D2C1B6; color: #1B3C53; padding: 0.5rem 1rem;">{{ total_cursos }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header" style="background: #456882; color: white;">
+                <h5>Enlaces Útiles</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{% url 'admin_usuarios_lista' %}" class="list-group-item list-group-item-action" style="border-left: 4px solid #1B3C53;">
+                        Gestionar Usuarios
+                    </a>
+                    <a href="{% url 'admin_cursos_lista' %}" class="list-group-item list-group-item-action" style="border-left: 4px solid #456882;">
+                        Gestionar Cursos
+                    </a>
+                    <a href="{% url 'admin_reportes' %}" class="list-group-item list-group-item-action" style="border-left: 4px solid #6B9BD1;">
+                        Ver Reportes
+                    </a>
+                    <a href="{% url 'admin_historial_lista' %}" class="list-group-item list-group-item-action" style="border-left: 4px solid #D2C1B6;">
+                        Ver Historial
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

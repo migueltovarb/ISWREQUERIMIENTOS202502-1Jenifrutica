@@ -1,0 +1,104 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #1B3C53;">Gestión de Usuarios</h2>
+    <a href="{% url 'admin_usuario_crear' %}" class="btn" style="background: #1B3C53; color: white; border: none;">
+        <i class="fas fa-plus"></i> Nuevo Usuario
+    </a>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4" style="border-left: 4px solid #1B3C53;">
+    <div class="card-body" style="background-color: #F9F3EF;">
+        <form method="get" class="form-inline">
+            <div class="form-group mr-3">
+                <label for="rol" class="mr-2" style="color: #1B3C53;">Rol:</label>
+                <select name="rol" id="rol" class="form-control" onchange="this.form.submit()" style="border-color: #D2C1B6;">
+                    <option value="">Todos</option>
+                    <option value="estudiante" {% if rol_filter == 'estudiante' %}selected{% endif %}>Estudiante</option>
+                    <option value="profesor" {% if rol_filter == 'profesor' %}selected{% endif %}>Profesor</option>
+                    <option value="administrador" {% if rol_filter == 'administrador' %}selected{% endif %}>Administrador</option>
+                </select>
+            </div>
+            
+            <div class="form-group mr-3">
+                <input type="text" name="search" class="form-control" placeholder="Buscar..." value="{{ search }}" style="border-color: #D2C1B6;">
+            </div>
+            
+            <button type="submit" class="btn" style="background-color: #456882; color: white; border: none;">
+                Buscar
+            </button>
+            
+            <a href="{% url 'admin_usuarios_lista' %}" class="btn ml-2" style="background-color: #D2C1B6; color: #1B3C53; border: none;">
+                Limpiar
+            </a>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de usuarios -->
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead style="background: #1B3C53; color: white;">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Teléfono</th>
+                        <th>Estado</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td><strong style="color: #1B3C53;">{{ usuario.username }}</strong></td>
+                        <td>{{ usuario.get_full_name }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            {% if usuario.rol == 'estudiante' %}
+                                <span class="badge" style="background-color: #6B9BD1; color: white; padding: 0.4rem 0.8rem;">Estudiante</span>
+                            {% elif usuario.rol == 'profesor' %}
+                                <span class="badge" style="background-color: #456882; color: white; padding: 0.4rem 0.8rem;">Profesor</span>
+                            {% else %}
+                                <span class="badge" style="background-color: #1B3C53; color: white; padding: 0.4rem 0.8rem;">Administrador</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ usuario.telefono|default:"-" }}</td>
+                        <td>
+                            {% if usuario.activo %}
+                                <span class="badge" style="background-color: #6B9BD1; color: white; padding: 0.4rem 0.8rem;">Activo</span>
+                            {% else %}
+                                <span class="badge" style="background-color: #D2C1B6; color: #1B3C53; padding: 0.4rem 0.8rem;">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                        <td class="table-actions">
+                            <a href="{% url 'admin_usuario_editar' usuario.id %}" class="btn btn-sm" style="background-color: #6B9BD1; color: white; border: none;" title="Editar">
+                                Editar
+                            </a>
+                            {% if usuario.activo %}
+                            <a href="{% url 'admin_usuario_eliminar' usuario.id %}" class="btn btn-sm" style="background-color: #D2C1B6; color: #1B3C53; border: none;" title="Desactivar">
+                                Desactivar
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center" style="color: #456882; padding: 2rem;">No hay usuarios registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

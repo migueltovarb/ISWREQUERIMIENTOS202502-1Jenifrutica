@@ -1,0 +1,468 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Generación de Reportes Académicos{% endblock %}
+
+{% block admin_content %}
+<div class="mb-4">
+    <h2 style="color: #1B3C53;">Generación de Reportes Académicos</h2>
+</div>
+
+<div class="row">
+    <!-- Filtros de Búsqueda -->
+    <div class="col-md-3">
+        <div class="card shadow" style="border-left: 4px solid #1B3C53;">
+            <div class="card-header" style="background: #1B3C53; color: white;">
+                <h5 style="margin: 0;">Filtros de Búsqueda</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" action="{% url 'admin_generar_reporte' %}" id="filtrosForm">
+                    <input type="hidden" name="preview" value="1">
+                    
+                    <div class="form-group">
+                        <label for="semestre">Semestre <span class="text-danger">*</span></label>
+                        <select class="form-control" id="semestre" name="semestre" required autofocus>
+                            <option value="">Seleccione...</option>
+                            {% for sem in semestres %}
+                            <option value="{{ sem }}" {% if filtros_aplicados.semestre == sem %}selected{% endif %}>{{ sem }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="grupo">Grupo</label>
+                        <select class="form-control" id="grupo" name="grupo">
+                            <option value="">Todos</option>
+                            {% for grp in grupos %}
+                            <option value="{{ grp }}" {% if filtros_aplicados.grupo == grp %}selected{% endif %}>{{ grp }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="asignatura">Asignatura</label>
+                        <select class="form-control" id="asignatura" name="asignatura">
+                            <option value="">Todas</option>
+                            {% for asig in asignaturas %}
+                            <option value="{{ asig.id }}" {% if filtros_aplicados.asignatura_id == asig.id|stringformat:"s" %}selected{% endif %}>{{ asig.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fecha_desde">Rango de Fechas</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="date" class="form-control" id="fecha_desde" name="fecha_desde" 
+                                       placeholder="Desde" value="{{ filtros_aplicados.fecha_desde }}">
+                            </div>
+                            <div class="col-6">
+                                <input type="date" class="form-control" id="fecha_hasta" name="fecha_hasta" 
+                                       placeholder="Hasta" value="{{ filtros_aplicados.fecha_hasta }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="estado_academico">Estado Académico</label>
+                        <select class="form-control" id="estado_academico" name="estado_academico">
+                            <option value="">Todos</option>
+                            <option value="aprobado" {% if filtros_aplicados.estado_academico == 'aprobado' %}selected{% endif %}>Aprobado</option>
+                            <option value="reprobado" {% if filtros_aplicados.estado_academico == 'reprobado' %}selected{% endif %}>Reprobado</option>
+                            <option value="suspendido" {% if filtros_aplicados.estado_academico == 'suspendido' %}selected{% endif %}>Suspendido</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tipo_reporte">Tipo de Reporte <span class="text-danger">*</span></label>
+                        <select class="form-control" id="tipo_reporte" name="tipo_reporte" required>
+                            <option value="">Seleccione...</option>
+                            <option value="notas_estudiante" {% if filtros_aplicados.tipo_reporte == 'notas_estudiante' %}selected{% endif %}>Notas por Estudiante</option>
+                            <option value="notas_asignatura" {% if filtros_aplicados.tipo_reporte == 'notas_asignatura' %}selected{% endif %}>Notas por Asignatura</option>
+                            <option value="resumen_general" {% if filtros_aplicados.tipo_reporte == 'resumen_general' %}selected{% endif %}>Resumen General</option>
+                            <option value="estudiantes_riesgo" {% if filtros_aplicados.tipo_reporte == 'estudiantes_riesgo' %}selected{% endif %}>Estudiantes en Riesgo</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-block" style="background: #6B9BD1; color: white; border: none;">
+                        Generar Vista Previa
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Vista Previa del Reporte -->
+    <div class="col-md-9">
+        <div class="card shadow">
+            <div class="card-header" style="background: #456882; color: white;">
+                <h5 style="margin: 0;">Vista Previa del Reporte</h5>
+            </div>
+            <div class="card-body">
+                {% if datos_reporte %}
+                    <div class="mb-3">
+                        <form method="post" action="{% url 'admin_exportar_reporte_pdf' %}" id="exportarForm">
+                            {% csrf_token %}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="nombre_pdf" style="font-weight: 600; color: #1B3C53;">Nombre del Archivo PDF (opcional)</label>
+                                    <input type="text" class="form-control" id="nombre_pdf" name="nombre_pdf" 
+                                           placeholder="Ej: Reporte Notas Semestre 2025-2" maxlength="100">
+                                    <small class="text-muted">Si no especifica, se generará un nombre automático</small>
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" name="semestre" value="{{ filtros_aplicados.semestre }}">
+                            <input type="hidden" name="grupo" value="{{ filtros_aplicados.grupo }}">
+                            <input type="hidden" name="asignatura" value="{{ filtros_aplicados.asignatura_id }}">
+                            <input type="hidden" name="fecha_desde" value="{{ filtros_aplicados.fecha_desde }}">
+                            <input type="hidden" name="fecha_hasta" value="{{ filtros_aplicados.fecha_hasta }}">
+                            <input type="hidden" name="estado_academico" value="{{ filtros_aplicados.estado_academico }}">
+                            <input type="hidden" name="tipo_reporte" value="{{ filtros_aplicados.tipo_reporte }}">
+                            
+                            <button type="submit" class="btn" style="background: #1B3C53; color: white; border: none;">
+                                Exportar PDF
+                            </button>
+                        </form>
+                        
+                        <button type="button" class="btn" style="background: #6B9BD1; color: white; border: none;" 
+                                onclick="abrirModalGuardarReporte()">
+                            Guardar Reporte
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead style="background: #1B3C53; color: white;">
+                                <tr>
+                                    {% if filtros_aplicados.tipo_reporte == 'notas_estudiante' %}
+                                        <th>Matrícula</th>
+                                        <th>Nombre</th>
+                                        <th>Total Notas</th>
+                                        <th>Promedio</th>
+                                        <th>Estado</th>
+                                    {% elif filtros_aplicados.tipo_reporte == 'notas_asignatura' %}
+                                        <th>Código</th>
+                                        <th>Asignatura</th>
+                                        <th>Profesor</th>
+                                        <th>Estudiantes</th>
+                                        <th>Promedio</th>
+                                    {% elif filtros_aplicados.tipo_reporte == 'resumen_general' %}
+                                        <th>Indicador</th>
+                                        <th>Valor</th>
+                                    {% elif filtros_aplicados.tipo_reporte == 'estudiantes_riesgo' %}
+                                        <th>Matrícula</th>
+                                        <th>Nombre</th>
+                                        <th>Promedio</th>
+                                        <th>Cursos Reprobados</th>
+                                        <th>Estado</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if filtros_aplicados.tipo_reporte == 'notas_estudiante' %}
+                                    {% for dato in datos_reporte %}
+                                    <tr>
+                                        <td>{{ dato.matricula }}</td>
+                                        <td>{{ dato.nombre }}</td>
+                                        <td>{{ dato.total_notas }}</td>
+                                        <td>{{ dato.promedio }}</td>
+                                        <td>
+                                            <span class="badge {% if dato.estado == 'Aprobado' %}badge-success{% else %}badge-danger{% endif %}">
+                                                {{ dato.estado }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% elif filtros_aplicados.tipo_reporte == 'notas_asignatura' %}
+                                    {% for dato in datos_reporte %}
+                                    <tr>
+                                        <td>{{ dato.codigo }}</td>
+                                        <td>{{ dato.nombre }}</td>
+                                        <td>{{ dato.profesor }}</td>
+                                        <td>{{ dato.estudiantes }}</td>
+                                        <td>{{ dato.promedio }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% elif filtros_aplicados.tipo_reporte == 'resumen_general' %}
+                                    {% for dato in datos_reporte %}
+                                    <tr><td>Total Estudiantes</td><td>{{ dato.total_estudiantes }}</td></tr>
+                                    <tr><td>Total Cursos</td><td>{{ dato.total_cursos }}</td></tr>
+                                    <tr><td>Total Calificaciones</td><td>{{ dato.total_calificaciones }}</td></tr>
+                                    <tr><td>Promedio General</td><td>{{ dato.promedio_general }}</td></tr>
+                                    {% endfor %}
+                                {% elif filtros_aplicados.tipo_reporte == 'estudiantes_riesgo' %}
+                                    {% for dato in datos_reporte %}
+                                    <tr>
+                                        <td>{{ dato.matricula }}</td>
+                                        <td>{{ dato.nombre }}</td>
+                                        <td>{{ dato.promedio }}</td>
+                                        <td>{{ dato.cursos_reprobados }}</td>
+                                        <td>
+                                            <span class="badge badge-warning">{{ dato.estado }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% elif filtros_aplicados %}
+                    <!-- Mostrar cuando se aplicaron filtros pero no hay resultados -->
+                    <div class="alert alert-warning text-center" style="padding: 3rem;">
+                        <h5 style="color: #856404;">No se encontraron registros que coincidan con los filtros especificados</h5>
+                        <p>Intente modificar los criterios de búsqueda o seleccionar otros filtros.</p>
+                    </div>
+                {% else %}
+                    <div class="text-center" style="padding: 3rem; color: #456882;">
+                        <p style="font-size: 1.2rem;">Seleccione los filtros y haga clic en "Generar Vista Previa"</p>
+                        <p>Los campos marcados con <span class="text-danger">*</span> son obligatorios</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Mis Reportes Guardados -->
+        <div class="card shadow mt-4">
+            <div class="card-header" style="background: #D2C1B6; color: #1B3C53;">
+                <h5 style="margin: 0;">Mis Reportes Guardados</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead style="background: #F9F3EF;">
+                            <tr>
+                                <th>Nombre del Reporte</th>
+                                <th>Descripción</th>
+                                <th>Tipo de Reporte</th>
+                                <th>Semestre</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reporte in reportes_guardados %}
+                            <tr>
+                                <td><strong style="color: #1B3C53;">{{ reporte.nombre }}</strong></td>
+                                <td style="font-size: 0.85rem;">{{ reporte.descripcion|truncatewords:8|default:"-" }}</td>
+                                <td>{{ reporte.get_tipo_reporte_display }}</td>
+                                <td>{{ reporte.semestre }}</td>
+                                <td>
+                                    {% if reporte.activo %}
+                                        <span class="badge" style="background-color: #6B9BD1; color: white; padding: 0.4rem 0.8rem;">Activo</span>
+                                    {% else %}
+                                        <span class="badge" style="background-color: #D2C1B6; color: #1B3C53; padding: 0.4rem 0.8rem;">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ reporte.fecha_creacion|date:"d/m/Y" }}</td>
+                                <td class="table-actions">
+                                    <a href="{% url 'admin_editar_reporte' reporte.id %}" class="btn btn-sm" style="background-color: #6B9BD1; color: white; border: none;" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'admin_eliminar_reporte' reporte.id %}" class="btn btn-sm" style="background-color: #dc3545; color: white; border: none;" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center" style="color: #456882; padding: 2rem;">
+                                    No tienes reportes guardados. Usa el botón "Guardar Reporte" para crear una plantilla.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Guardar Reporte -->
+<div class="modal fade" id="modalGuardarReporte" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #1B3C53; color: white;">
+                <h5 class="modal-title">Guardar Reporte como Plantilla</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formGuardarReporte">
+                    {% csrf_token %}
+                    <input type="hidden" name="semestre" id="modal_semestre">
+                    <input type="hidden" name="grupo" id="modal_grupo">
+                    <input type="hidden" name="asignatura" id="modal_asignatura">
+                    <input type="hidden" name="fecha_desde" id="modal_fecha_desde">
+                    <input type="hidden" name="fecha_hasta" id="modal_fecha_hasta">
+                    <input type="hidden" name="estado_academico" id="modal_estado_academico">
+                    <input type="hidden" name="tipo_reporte" id="modal_tipo_reporte">
+                    
+                    <div class="form-group">
+                        <label for="nombre_reporte">Nombre del Reporte <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nombre_reporte" name="nombre_reporte" 
+                               maxlength="100" placeholder="Ej: Notas Semestre 1 2025" required>
+                        <small class="form-text text-muted">Solo letras, números, espacios y guiones (máx. 100 caracteres)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descripcion">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" 
+                                  rows="4" maxlength="500" placeholder="Descripción opcional del reporte..."></textarea>
+                        <small class="form-text text-muted">Máximo 500 caracteres</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Estado del Reporte <span class="text-danger">*</span></label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="estado_reporte" 
+                                       id="estado_activo" value="True" checked>
+                                <label class="form-check-label" for="estado_activo">Activo</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="estado_reporte" 
+                                       id="estado_inactivo" value="False">
+                                <label class="form-check-label" for="estado_inactivo">Inactivo</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="errorMensaje" class="alert alert-danger" style="display: none;"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn" style="background: #1B3C53; color: white;" 
+                        onclick="guardarReporte()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus en el campo semestre al cargar la página
+    const semestreField = document.getElementById('semestre');
+    if (semestreField && !semestreField.value) {
+        semestreField.focus();
+    }
+});
+
+function abrirModalGuardarReporte() {
+    // Validar que existan filtros aplicados
+    const semestre = document.getElementById('semestre').value;
+    const tipoReporte = document.getElementById('tipo_reporte').value;
+    
+    if (!semestre || !tipoReporte) {
+        alert('Por favor, complete los campos obligatorios: Semestre y Tipo de Reporte');
+        return;
+    }
+    
+    // Copiar valores de los filtros al modal
+    document.getElementById('modal_semestre').value = semestre;
+    document.getElementById('modal_grupo').value = document.getElementById('grupo').value;
+    document.getElementById('modal_asignatura').value = document.getElementById('asignatura').value;
+    document.getElementById('modal_fecha_desde').value = document.getElementById('fecha_desde').value;
+    document.getElementById('modal_fecha_hasta').value = document.getElementById('fecha_hasta').value;
+    document.getElementById('modal_estado_academico').value = document.getElementById('estado_academico').value;
+    document.getElementById('modal_tipo_reporte').value = tipoReporte;
+    
+    // Prellenar el nombre del reporte con el valor del campo nombre_pdf si existe
+    const nombrePdf = document.getElementById('nombre_pdf');
+    const nombreReporte = document.getElementById('nombre_reporte');
+    if (nombrePdf && nombrePdf.value.trim()) {
+        nombreReporte.value = nombrePdf.value.trim();
+    } else {
+        nombreReporte.value = '';
+    }
+    
+    // Limpiar descripción y resetear estado
+    document.getElementById('descripcion').value = '';
+    document.getElementById('estado_activo').checked = true;
+    
+    // Mostrar modal usando Bootstrap 5
+    const modal = new bootstrap.Modal(document.getElementById('modalGuardarReporte'));
+    modal.show();
+}
+
+function guardarReporte() {
+    const form = document.getElementById('formGuardarReporte');
+    const formData = new FormData(form);
+    const errorDiv = document.getElementById('errorMensaje');
+    
+    // Validar nombre del reporte
+    const nombre = formData.get('nombre_reporte').trim();
+    if (!nombre) {
+        errorDiv.textContent = 'Por favor, complete todos los campos obligatorios';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Validar caracteres especiales
+    if (!/^[A-Za-z0-9\s\-]+$/.test(nombre)) {
+        errorDiv.textContent = 'El nombre solo puede contener letras, números, espacios y guiones';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    errorDiv.style.display = 'none';
+    
+    console.log('Enviando datos:', Array.from(formData.entries()));
+    
+    // Enviar petición AJAX
+    fetch('{% url "admin_guardar_reporte" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('#formGuardarReporte [name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Error del servidor');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            alert(data.mensaje);
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalGuardarReporte'));
+            modal.hide();
+            location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'Error desconocido'));
+            errorDiv.textContent = data.error || 'Error al guardar el reporte';
+            errorDiv.style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error completo:', error);
+        alert('Error: ' + error.message);
+        errorDiv.textContent = 'Error de conexión: ' + error.message;
+        errorDiv.style.display = 'block';
+    });
+}
+</script>
+
+<style>
+.form-control:focus {
+    border-color: #1B3C53;
+    box-shadow: 0 0 0 0.2rem rgba(27, 60, 83, 0.25);
+}
+
+.table thead th {
+    border: none;
+}
+
+.badge {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+</style>
+
+{% endblock %}

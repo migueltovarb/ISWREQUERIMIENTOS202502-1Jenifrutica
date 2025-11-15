@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Profesor{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        border-radius: 15px;
+        padding: 20px;
+        color: white;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(27, 60, 83, 0.2);
+        transition: transform 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-card h3 {
+        font-size: 2.5rem;
+        margin: 10px 0;
+    }
+    /* Estilo para encabezados de tabla */
+    .table thead th {
+        background-color: #1B3C53;
+        color: white;
+        font-weight: bold;
+        padding: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 style="color: #1B3C53; margin-bottom: 2rem;">
+        <i class="fas fa-chalkboard-teacher"></i> Bienvenido, Profesor {{ user.get_full_name }}
+    </h1>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card" style="background: #1B3C53;">
+                <p><i class="fas fa-book"></i> Cursos</p>
+                <h3>{{ total_cursos }}</h3>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card" style="background: #456882;">
+                <p><i class="fas fa-users"></i> Estudiantes</p>
+                <h3>{{ total_estudiantes }}</h3>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card" style="background: #6B9BD1;">
+                <p><i class="fas fa-clipboard-check"></i> Calificaciones</p>
+                <h3>{{ calificaciones_registradas }}</h3>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card" style="background: #D2C1B6; color: #1B3C53;">
+                <p><i class="fas fa-bell"></i> Notificaciones</p>
+                <h3>{{ notificaciones_no_leidas }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Acciones Rápidas</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="{% url 'notificaciones' %}" class="btn btn-secondary">
+                    Ver Notificaciones
+                </a>
+            </div>
+            <div style="margin-top: 1rem;">
+                <p><strong>Para registrar calificaciones y ver estudiantes, usa los enlaces en la tabla de "Mis Cursos" más abajo.</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cursos asignados -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Mis Cursos</h3>
+        </div>
+        <div class="card-body">
+            {% if cursos %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th>Código</th>
+                                <th>Estudiantes Inscritos</th>
+                                <th>Calificaciones Registradas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for curso in cursos %}
+                            <tr>
+                                <td>{{ curso.nombre }}</td>
+                                <td>{{ curso.codigo }}</td>
+                                <td>{{ curso.estudiantes_count }}</td>
+                                <td>{{ curso.calificaciones_count }}</td>
+                                <td>
+                                    <a href="{% url 'estudiantes_curso' curso.id %}" 
+                                       class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                        Ver Estudiantes
+                                    </a>
+                                    <a href="{% url 'registrar_calificacion' curso.id %}" 
+                                       class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-left: 0.5rem;">
+                                        Registrar Nota
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 2rem;">
+                    No tienes cursos asignados actualmente.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Últimas calificaciones registradas -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Últimas Calificaciones Registradas</h3>
+        </div>
+        <div class="card-body">
+            {% if ultimas_calificaciones %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Estudiante</th>
+                                <th>Curso</th>
+                                <th>Tipo de Evaluación</th>
+                                <th>Calificación</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for calificacion in ultimas_calificaciones %}
+                            <tr>
+                                <td>{{ calificacion.inscripcion.estudiante.first_name }} {{ calificacion.inscripcion.estudiante.last_name }}</td>
+                                <td>{{ calificacion.inscripcion.curso.nombre }}</td>
+                                <td>{{ calificacion.get_tipo_evaluacion_display }}</td>
+                                <td>
+                                    <span style="font-weight: bold; color: 
+                                        {% if calificacion.nota >= 3.0 %}#28a745{% else %}#dc3545{% endif %};">
+                                        {{ calificacion.nota }}
+                                    </span>
+                                </td>
+                                <td>{{ calificacion.fecha_registro|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'registrar_calificacion' calificacion.inscripcion.curso.id %}?editar={{ calificacion.id }}" 
+                                       class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                        Editar
+                                    </a>
+                                    <a href="{% url 'eliminar_calificacion' calificacion.id %}" 
+                                       class="btn btn-danger" 
+                                       style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-left: 0.25rem;">
+                                        Eliminar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 2rem;">
+                    No has registrado calificaciones aún.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Notificaciones recientes -->
+    {% if notificaciones_recientes %}
+    <div class="card">
+        <div class="card-header">
+            <h3>Notificaciones Recientes</h3>
+        </div>
+        <div class="card-body">
+            <div class="notification-panel">
+                {% for notificacion in notificaciones_recientes %}
+                <div class="notification-item {% if not notificacion.leida %}unread{% endif %}">
+                    <h4 style="color: #89004f; margin-bottom: 0.5rem;">{{ notificacion.titulo }}</h4>
+                    <p style="margin-bottom: 0.5rem;">{{ notificacion.mensaje }}</p>
+                    <small style="color: #666;">{{ notificacion.fecha_creacion|date:"d/m/Y H:i" }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-2">
+                <a href="{% url 'notificaciones' %}" class="btn btn-secondary">
+                    Ver Todas las Notificaciones
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Información del perfil -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Mi Información</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div>
+                    <strong style="color: #89004f;">Nombre Completo:</strong><br>
+                    {{ user.first_name }} {{ user.last_name }}
+                </div>
+                <div>
+                    <strong style="color: #89004f;">Email:</strong><br>
+                    {{ user.email }}
+                </div>
+                <div>
+                    <strong style="color: #89004f;">Usuario:</strong><br>
+                    {{ user.username }}
+                </div>
+                <div>
+                    <strong style="color: #89004f;">Rol:</strong><br>
+                    {{ user.get_rol_display }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

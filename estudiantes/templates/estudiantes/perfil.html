@@ -1,0 +1,426 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Mi Perfil - Sistema de Gestión de Notas{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #1B3C53; margin-bottom: 2rem;">Mi Perfil</h2>
+    
+    <!-- Información del usuario -->
+    <div class="dashboard-grid" style="grid-template-columns: 1fr 2fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Foto y datos básicos -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Información Personal</h3>
+            </div>
+            <div class="card-body" style="text-align: center;">
+                <!-- Avatar del usuario -->
+                <div style="width: 120px; height: 120px; border-radius: 50%; background: #1B3C53; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; font-weight: bold;">
+                    {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
+                </div>
+                
+                <h3 style="color: #1B3C53; margin-bottom: 0.5rem;">
+                    {{ user.first_name }} {{ user.last_name }}
+                </h3>
+                
+                <div style="background-color: 
+                    {% if user.rol == 'estudiante' %}#F9F3EF
+                    {% elif user.rol == 'profesor' %}#D2C1B6
+                    {% else %}#6B9BD1{% endif %}; 
+                    color: 
+                    {% if user.rol == 'estudiante' %}#1B3C53
+                    {% elif user.rol == 'profesor' %}#456882
+                    {% else %}#F9F3EF{% endif %}; 
+                    padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; margin-bottom: 1rem; font-weight: bold;">
+                    {{ user.get_rol_display }}
+                </div>
+                
+                <div style="text-align: left; margin-top: 1.5rem;">
+                    <div style="margin-bottom: 0.75rem;">
+                        <strong style="color: #1B3C53;">Email:</strong><br>
+                        <span style="color: #666;">{{ user.email }}</span>
+                    </div>
+                    
+                    <div style="margin-bottom: 0.75rem;">
+                        <strong style="color: #1B3C53;">Usuario:</strong><br>
+                        <span style="color: #666;">{{ user.username }}</span>
+                    </div>
+                    
+                    <div style="margin-bottom: 0.75rem;">
+                        <strong style="color: #1B3C53;">Fecha de Registro:</strong><br>
+                        <span style="color: #666;">{{ user.date_joined|date:"d/m/Y" }}</span>
+                    </div>
+                    
+                    <div style="margin-bottom: 0.75rem;">
+                        <strong style="color: #1B3C53;">Último Acceso:</strong><br>
+                        <span style="color: #666;">
+                            {% if user.last_login %}
+                                {{ user.last_login|date:"d/m/Y H:i" }}
+                            {% else %}
+                                Nunca
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div style="margin-bottom: 0.75rem;">
+                        <strong style="color: #1B3C53;">Teléfono:</strong><br>
+                        <span style="color: #666;">{{ user.telefono|default:"No registrado" }}</span>
+                    </div>
+                </div>
+                
+                <button onclick="mostrarFormularioEdicion()" class="btn btn-primary" style="margin-top: 1rem; width: 100%;">
+                    Editar Perfil
+                </button>
+            </div>
+        </div>
+        
+        <!-- Estadísticas del usuario -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Estadísticas</h3>
+            </div>
+            <div class="card-body">
+                {% if user.rol == 'estudiante' %}
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_cursos|default:0 }}</div>
+                            <div class="stat-label">Cursos Inscritos</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_calificaciones|default:0 }}</div>
+                            <div class="stat-label">Calificaciones</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-number">{{ promedio_general|default:"0.0"|floatformat:1 }}</div>
+                            <div class="stat-label">Promedio General</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-number">{{ cursos_aprobados|default:0 }}</div>
+                            <div class="stat-label">Cursos Aprobados</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progreso académico -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #1B3C53; margin-bottom: 1rem;">Progreso Académico</h4>
+                        <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px;">
+                            <div style="display: flex; justify-content: between; margin-bottom: 0.5rem;">
+                                <span>Progreso de Aprobación</span>
+                                <span>{{ porcentaje_aprobacion|default:0 }}%</span>
+                            </div>
+                            <div style="background-color: #e9ecef; height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div style="background: #1B3C53; height: 100%; width: {{ porcentaje_aprobacion|default:0 }}%; transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                {% elif user.rol == 'profesor' %}
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_cursos|default:0 }}</div>
+                            <div class="stat-label">Cursos Asignados</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_estudiantes|default:0 }}</div>
+                            <div class="stat-label">Estudiantes</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_calificaciones|default:0 }}</div>
+                            <div class="stat-label">Calificaciones Registradas</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-number">{{ promedio_cursos|default:"0.0"|floatformat:1 }}</div>
+                            <div class="stat-label">Promedio de Cursos</div>
+                        </div>
+                    </div>
+                    
+                {% else %}
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_usuarios|default:0 }}</div>
+                            <div class="stat-label">Total Usuarios</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_cursos|default:0 }}</div>
+                            <div class="stat-label">Total Cursos</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_calificaciones|default:0 }}</div>
+                            <div class="stat-label">Total Calificaciones</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-number">{{ promedio_sistema|default:"0.0"|floatformat:1 }}</div>
+                            <div class="stat-label">Promedio Sistema</div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Actividad reciente -->
+                <div>
+                    <h4 style="color: #1B3C53; margin-bottom: 1rem;">Actividad Reciente</h4>
+                    <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 200px; overflow-y: auto;">
+                        {% if actividad_reciente %}
+                            {% for actividad in actividad_reciente %}
+                            <div style="display: flex; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">
+                                <div style="width: 8px; height: 8px; background-color: #6B9BD1; border-radius: 50%; margin-right: 0.75rem;"></div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 500; color: #333;">{{ actividad.descripcion }}</div>
+                                    <small style="color: #666;">{{ actividad.fecha|date:"d/m/Y H:i" }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; color: #666; padding: 1rem;">
+                                No hay actividad reciente registrada
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Configuración de cuenta -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Configuración de Cuenta</h3>
+        </div>
+        <div class="card-body">
+            <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="padding: 1rem; border: 2px solid #6B9BD1; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2rem; color: #1B3C53; margin-bottom: 0.5rem;"></div>
+                    <h4 style="color: #1B3C53; margin-bottom: 0.5rem;">Cambiar Contraseña</h4>
+                    <p style="color: #666; margin-bottom: 1rem; font-size: 0.9rem;">
+                        Actualiza tu contraseña para mantener tu cuenta segura
+                    </p>
+                    <button onclick="mostrarCambioContrasena()" class="btn btn-secondary">
+                        Cambiar Contraseña
+                    </button>
+                </div>
+                
+
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botón para volver al dashboard -->
+    <div class="text-center mt-2">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            Volver al Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Modal para editar perfil -->
+<div id="modalEditarPerfil" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 500px;">
+        <h3 style="color: #1B3C53; margin-bottom: 1.5rem;">Editar Perfil</h3>
+        
+        <form id="formEditarPerfil" method="post" action="{% url 'actualizar_perfil' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="editNombre">Nombre:</label>
+                <input type="text" id="editNombre" name="first_name" class="form-control" value="{{ user.first_name }}" required minlength="3">
+            </div>
+            
+            <div class="form-group">
+                <label for="editApellido">Apellido:</label>
+                <input type="text" id="editApellido" name="last_name" class="form-control" value="{{ user.last_name }}" required minlength="3">
+            </div>
+            
+            <div class="form-group">
+                <label for="editEmail">Email:</label>
+                <input type="email" id="editEmail" name="email" class="form-control" value="{{ user.email }}" required>
+            </div>
+
+            <!-- Nuevo: Teléfono -->
+            <div class="form-group">
+                <label for="editTelefono">Teléfono:</label>
+                <input type="tel"
+                       id="editTelefono"
+                       name="telefono"
+                       class="form-control"
+                       value="{{ user.telefono|default:'' }}"
+                       pattern="\d{10}"
+                       maxlength="10"
+                       placeholder="10 dígitos"
+                       required>
+                <small style="color:#666;">Exactamente 10 dígitos.</small>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: end; margin-top: 2rem;">
+                <button type="button" onclick="cerrarModalEdicion()" class="btn btn-secondary">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para cambiar contraseña -->
+<div id="modalCambioContrasena" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 400px;">
+        <h3 style="color: #1B3C53; margin-bottom: 1.5rem;">Cambiar Contraseña</h3>
+        
+        <form id="formCambioContrasena" method="post" action="{% url 'cambiar_contrasena' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="contrasenaActual">Contraseña Actual:</label>
+                <input type="password" id="contrasenaActual" name="current_password" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="nuevaContrasena">Nueva Contraseña:</label>
+                <input type="password" id="nuevaContrasena" name="new_password" class="form-control" required minlength="8">
+                <small style="color: #666; display: block; margin-top: 0.25rem;">
+                    Mínimo 8 caracteres, debe incluir mayúscula, número y carácter especial
+                </small>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmarContrasena">Confirmar Nueva Contraseña:</label>
+                <input type="password" id="confirmarContrasena" name="confirm_password" class="form-control" required minlength="8">
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: end; margin-top: 2rem;">
+                <button type="button" onclick="cerrarModalContrasena()" class="btn btn-secondary">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    Cambiar Contraseña
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Función para mostrar el formulario de edición
+    function mostrarFormularioEdicion() {
+        document.getElementById('modalEditarPerfil').style.display = 'block';
+    }
+
+    // Función para cerrar el modal de edición
+    function cerrarModalEdicion() {
+        document.getElementById('modalEditarPerfil').style.display = 'none';
+    }
+
+    // Función para mostrar el modal de cambio de contraseña
+    function mostrarCambioContrasena() {
+        document.getElementById('modalCambioContrasena').style.display = 'block';
+    }
+
+    // Función para cerrar el modal de cambio de contraseña
+    function cerrarModalContrasena() {
+        document.getElementById('modalCambioContrasena').style.display = 'none';
+    }
+
+    // Función para mostrar configuración de notificaciones
+    function mostrarConfigNotificaciones() {
+        alert('Funcionalidad de configuración de notificaciones en desarrollo.');
+    }
+
+    // Función para exportar datos
+    function exportarDatos() {
+        if (confirm('¿Desea exportar todos sus datos en formato PDF?')) {
+            alert('Generando reporte... Esta funcionalidad estará disponible próximamente.');
+        }
+    }
+
+    // Validación y envío del formulario de edición (POST a actualizar_perfil)
+    document.getElementById('formEditarPerfil').addEventListener('submit', function(e) {
+        const tel = document.getElementById('editTelefono').value.trim();
+        if (!/^\d{10}$/.test(tel)) {
+            e.preventDefault();
+            alert('El teléfono debe tener exactamente 10 dígitos.');
+            return false;
+        }
+        // Dejar que el formulario se envíe al backend (actualizar_perfil)
+    });
+
+    // Manejar el envío del formulario de cambio de contraseña
+    document.getElementById('formCambioContrasena').addEventListener('submit', function(e) {
+        const nuevaContrasena = document.getElementById('nuevaContrasena').value;
+        const confirmarContrasena = document.getElementById('confirmarContrasena').value;
+        
+        if (nuevaContrasena !== confirmarContrasena) {
+            e.preventDefault();
+            alert('Las contraseñas no coinciden.');
+            return false;
+        }
+        
+        if (nuevaContrasena.length < 8) {
+            e.preventDefault();
+            alert('La contraseña debe tener al menos 8 caracteres.');
+            return false;
+        }
+        
+        // Validar mayúscula
+        if (!/[A-Z]/.test(nuevaContrasena)) {
+            e.preventDefault();
+            alert('La contraseña debe contener al menos una letra mayúscula.');
+            return false;
+        }
+        
+        // Validar número
+        if (!/[0-9]/.test(nuevaContrasena)) {
+            e.preventDefault();
+            alert('La contraseña debe contener al menos un número.');
+            return false;
+        }
+        
+        // Validar carácter especial
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(nuevaContrasena)) {
+            e.preventDefault();
+            alert('La contraseña debe contener al menos un carácter especial (!@#$%^&*).');
+            return false;
+        }
+        
+        // Si todo está OK, mostrar confirmación
+        return confirm('¿Está seguro de que desea cambiar su contraseña?');
+    });
+
+    // Cerrar modales al hacer clic fuera de ellos
+    document.getElementById('modalEditarPerfil').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModalEdicion();
+        }
+    });
+
+    document.getElementById('modalCambioContrasena').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModalContrasena();
+        }
+    });
+
+    // Animación de entrada para las estadísticas
+    document.addEventListener('DOMContentLoaded', function() {
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100);
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}

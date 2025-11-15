@@ -1,0 +1,44 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Confirmar Eliminación{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header text-white" style="background: #1B3C53;">
+                <h4>¿Confirmar Eliminación?</h4>
+            </div>
+            <div class="card-body">
+                <p>¿Está seguro que desea eliminar el reporte <strong>"{{ reporte.nombre }}"</strong>?</p>
+                <p class="text-danger">Esta acción no se puede deshacer.</p>
+                <p class="text-muted">
+                    <strong>Nota:</strong> El historial de reportes generados previamente usando esta plantilla 
+                    se mantendrá intacto. Solo se eliminará la configuración guardada.
+                </p>
+                
+                <hr>
+                
+                <div class="mb-3" style="background-color: #F9F3EF; padding: 1rem; border-radius: 5px;">
+                    <p class="mb-1"><strong>Detalles del Reporte:</strong></p>
+                    <ul class="mb-0">
+                        <li>Tipo: {{ reporte.get_tipo_reporte_display }}</li>
+                        <li>Semestre: {{ reporte.semestre }}</li>
+                        <li>Creado: {{ reporte.fecha_creacion|date:"d/m/Y" }}</li>
+                    </ul>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        Sí, Eliminar Reporte
+                    </button>
+                    <a href="{% url 'admin_generar_reporte' %}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

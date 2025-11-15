@@ -1,0 +1,136 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Editar Reporte{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow">
+            <div class="card-header" style="background: #1B3C53; color: #fff;">
+                <h4>Editar Reporte Guardado</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Fila 1: Nombre del Reporte -->
+                    <div class="form-group">
+                        <label for="{{ form.nombre.id_for_label }}">Nombre del Reporte *</label>
+                        {{ form.nombre }}
+                        {% if form.nombre.help_text %}
+                            <small class="form-text text-muted">{{ form.nombre.help_text }}</small>
+                        {% endif %}
+                        {% if form.nombre.errors %}<div class="text-danger">{{ form.nombre.errors }}</div>{% endif %}
+                    </div>
+
+                    <!-- Fila 2: Descripción -->
+                    <div class="form-group">
+                        <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.help_text %}
+                            <small class="form-text text-muted">{{ form.descripcion.help_text }}</small>
+                        {% endif %}
+                        {% if form.descripcion.errors %}<div class="text-danger">{{ form.descripcion.errors }}</div>{% endif %}
+                    </div>
+
+                    <!-- Fila 3: Semestre / Grupo -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="semestre">Semestre *</label>
+                            <select name="semestre" id="semestre" class="form-control" required>
+                                <option value="">---------</option>
+                                {% for sem in semestres %}
+                                    <option value="{{ sem }}" {% if reporte.semestre == sem %}selected{% endif %}>{{ sem }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="grupo">Grupo</label>
+                            <select name="grupo" id="grupo" class="form-control">
+                                <option value="">Todos</option>
+                                {% for grp in grupos %}
+                                    <option value="{{ grp }}" {% if reporte.grupo == grp %}selected{% endif %}>{{ grp }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fila 4: Asignatura / Tipo de Reporte -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="asignatura">Asignatura</label>
+                            <select name="asignatura" id="asignatura" class="form-control">
+                                <option value="">Todas</option>
+                                {% for asig in asignaturas %}
+                                    <option value="{{ asig.id }}" {% if reporte.asignatura_id == asig.id %}selected{% endif %}>{{ asig.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.tipo_reporte.id_for_label }}">Tipo de Reporte *</label>
+                            {{ form.tipo_reporte }}
+                            {% if form.tipo_reporte.errors %}<div class="text-danger">{{ form.tipo_reporte.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Fila 5: Rango de Fechas -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="fecha_desde">Fecha Desde</label>
+                            <input type="date" name="fecha_desde" id="fecha_desde" class="form-control" value="{% if reporte.fecha_desde %}{{ reporte.fecha_desde|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="fecha_hasta">Fecha Hasta</label>
+                            <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control" value="{% if reporte.fecha_hasta %}{{ reporte.fecha_hasta|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                    </div>
+
+                    <!-- Fila 6: Estado Académico -->
+                    <div class="form-group">
+                        <label for="estado_academico">Estado Académico</label>
+                        <select name="estado_academico" id="estado_academico" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="aprobado" {% if reporte.estado_academico == 'aprobado' %}selected{% endif %}>Aprobado</option>
+                            <option value="reprobado" {% if reporte.estado_academico == 'reprobado' %}selected{% endif %}>Reprobado</option>
+                            <option value="suspendido" {% if reporte.estado_academico == 'suspendido' %}selected{% endif %}>Suspendido</option>
+                        </select>
+                    </div>
+
+                    <!-- Fila 7: Estado del Reporte -->
+                    <div class="form-group">
+                        <label>Estado del Reporte *</label><br>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="activo" id="activo_si" value="1" {% if reporte.activo == True %}checked{% endif %} required>
+                            <label class="form-check-label" for="activo_si">Activo</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="activo" id="activo_no" value="0" {% if reporte.activo == False %}checked{% endif %}>
+                            <label class="form-check-label" for="activo_no">Inactivo</label>
+                        </div>
+                        {% if form.activo.errors %}<div class="text-danger">{{ form.activo.errors }}</div>{% endif %}
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="form-group mt-4">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                        <a href="{% url 'admin_generar_reporte' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+
+                    <!-- Errores no asociados a campo -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mt-3">
+                            {% for err in form.non_field_errors %}
+                                <div>{{ err }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

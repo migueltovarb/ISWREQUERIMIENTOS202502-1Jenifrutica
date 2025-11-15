@@ -1,0 +1,128 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}{{ action }} Usuario{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow">
+            <div class="card-header" style="background: #1B3C53; color: #fff;">
+                <h4><i class="fas fa-user-plus"></i> {{ action }} Usuario</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Fila 1: Usuario / Email -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.username.id_for_label }}">Usuario *</label>
+                            {{ form.username }}
+                            {% if form.username.help_text %}
+                                <small class="form-text text-muted">{{ form.username.help_text }}</small>
+                            {% endif %}
+                            {% if form.username.errors %}<div class="text-danger">{{ form.username.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.email.id_for_label }}">Email *</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger">{{ form.email.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: Nombre / Apellido -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.first_name.id_for_label }}">Nombre *</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}<div class="text-danger">{{ form.first_name.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.last_name.id_for_label }}">Apellido *</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}<div class="text-danger">{{ form.last_name.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Rol / Teléfono -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.rol.id_for_label }}">Rol *</label>
+                            {{ form.rol }}
+                            {% if form.rol.errors %}<div class="text-danger">{{ form.rol.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.telefono.id_for_label }}">Teléfono *</label>
+                            {{ form.telefono }}
+                            {% if form.telefono.errors %}<div class="text-danger">{{ form.telefono.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Fila 4 (NUEVA): Tipo/Número de documento -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.tipo_documento.id_for_label }}">Tipo de documento *</label>
+                            {{ form.tipo_documento }}
+                            {% if form.tipo_documento.errors %}<div class="text-danger">{{ form.tipo_documento.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.numero_documento.id_for_label }}">Número de documento *</label>
+                            {{ form.numero_documento }}
+                            {% if form.numero_documento.errors %}<div class="text-danger">{{ form.numero_documento.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Fila 5: Contraseña / Confirmación -->
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.password.id_for_label }}">Contraseña {% if form.password.field.required %}*{% endif %}</label>
+                            {{ form.password }}
+                            {% if form.password.help_text %}
+                                <small class="form-text text-muted">{{ form.password.help_text }}</small>
+                            {% endif %}
+                            {% if form.password.errors %}<div class="text-danger">{{ form.password.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="{{ form.confirm_password.id_for_label }}">Confirmar Contraseña {% if form.confirm_password.field.required %}*{% endif %}</label>
+                            {{ form.confirm_password }}
+                            {% if form.confirm_password.errors %}<div class="text-danger">{{ form.confirm_password.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Estado (radio) SIN la etiqueta extra “Usuario Activo” -->
+                    <div class="form-group">
+                        <label>Estado *</label><br>
+                        {{ form.activo }}
+                        {% if form.activo.errors %}<div class="text-danger">{{ form.activo.errors }}</div>{% endif %}
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="form-group mt-4">
+                        <button type="submit" name="save" value="save" class="btn btn-success">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                        <button type="submit" name="save_add_another" value="save_add_another" class="btn btn-secondary">
+                            <i class="fas fa-plus-circle"></i> Guardar y añadir otro
+                        </button>
+                        <button type="submit" name="save_continue" value="save_continue" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Guardar y seguir editando
+                        </button>
+                        <a href="{% url 'admin_usuarios_lista' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+
+                    <!-- Errores no asociados a campo -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-error mt-3">
+                            {% for err in form.non_field_errors %}
+                                <div>{{ err }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

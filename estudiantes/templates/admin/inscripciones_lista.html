@@ -1,0 +1,91 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Gestión de Inscripciones{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Inscripciones</h2>
+    <a href="{% url 'admin_inscripcion_crear' %}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Nueva Inscripción
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="form-inline">
+            <div class="form-group mr-3">
+                <label for="curso" class="mr-2">Curso:</label>
+                <select name="curso" id="curso" class="form-control" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for curso in cursos %}
+                        <option value="{{ curso.id }}" {% if curso_id == curso.id|stringformat:"s" %}selected{% endif %}>
+                            {{ curso.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group mr-3">
+                <label for="estudiante" class="mr-2">Estudiante:</label>
+                <select name="estudiante" id="estudiante" class="form-control" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for estudiante in estudiantes %}
+                        <option value="{{ estudiante.id }}" {% if estudiante_id == estudiante.id|stringformat:"s" %}selected{% endif %}>
+                            {{ estudiante.get_full_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <a href="{% url 'admin_inscripciones_lista' %}" class="btn btn-outline-secondary">
+                Limpiar
+            </a>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Curso</th>
+                        <th>Fecha Inscripción</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inscripcion in inscripciones %}
+                    <tr>
+                        <td>{{ inscripcion.estudiante.get_full_name }}</td>
+                        <td><strong>{{ inscripcion.curso.nombre }}</strong></td>
+                        <td>{{ inscripcion.fecha_inscripcion|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if inscripcion.activo %}
+                                <span class="badge badge-success">Activo</span>
+                            {% else %}
+                                <span class="badge badge-secondary">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="table-actions">
+                            {% if inscripcion.activo %}
+                            <a href="{% url 'admin_inscripcion_eliminar' inscripcion.id %}" class="btn btn-sm btn-danger" title="Desactivar">
+                                Desactivar
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No hay inscripciones registradas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

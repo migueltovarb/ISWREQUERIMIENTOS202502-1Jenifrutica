@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Gestión de Notas{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        /* Estilo global para encabezados de tabla */
+        .table thead th {
+            background-color: #1B3C53 !important;
+            color: white !important;
+            font-weight: bold;
+            padding: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header principal -->
+    <header class="header">
+        <div class="container">
+            <h1>Sistema de Gestión de Notas</h1>
+        </div>
+    </header>
+
+    <!-- Barra de navegación -->
+    {% if user.is_authenticated %}
+    <nav class="nav-bar">
+        <div class="container">
+            <ul style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <!-- Navegación común para todos los usuarios -->
+                    <li><a href="{% url 'dashboard' %}">Inicio</a></li>
+                    
+                    <!-- Navegación específica para estudiantes -->
+                    {% if user.rol == 'estudiante' %}
+                        <li><a href="{% url 'mis_calificaciones' %}">Mis Calificaciones</a></li>
+                        <li><a href="{% url 'estado_academico' %}">Estado Académico</a></li>
+                        <li><a href="{% url 'notificaciones' %}">Notificaciones</a></li>
+                    {% endif %}
+                    
+                    <!-- Navegación específica para profesores -->
+                    {% if user.rol == 'profesor' %}
+                        <li><a href="{% url 'dashboard_profesor' %}">Mis Cursos</a></li>
+                        <li><a href="{% url 'notificaciones' %}">Notificaciones</a></li>
+                    {% endif %}
+                    
+                    <!-- Navegación específica para administradores -->
+                    {% if user.rol == 'administrador' %}
+                        <li><a href="{% url 'admin_dashboard' %}">Panel Admin</a></li>
+                        <li><a href="{% url 'notificaciones' %}">Notificaciones</a></li>
+                    {% endif %}
+                </div>
+                
+                <!-- Buscador global y menú de usuario (US-026) -->
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <form method="get" action="{% url 'buscador_global' %}" style="margin: 0;">
+                        <input type="text" name="q" placeholder="Buscar..." 
+                               style="padding: 0.5rem; border-radius: 5px; border: 1px solid #ddd;">
+                    </form>
+                    
+                    <!-- Menú desplegable de usuario -->
+                    <div style="position: relative;">
+                        <button onclick="toggleUserMenu()" 
+                                style="background-color: #6B9BD1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 30px; height: 30px; border-radius: 50%; background-color: #1B3C53; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
+                            </span>
+                            <span>{{ user.first_name|default:user.username }}</span>
+                            <span>▼</span>
+                        </button>
+                        
+                        <!-- Dropdown menu -->
+                        <div id="userMenu" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; background-color: white; border: 1px solid #ddd; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 200px; z-index: 1000;">
+                            <a href="{% url 'perfil' %}" 
+                               style="display: block; padding: 0.75rem 1rem; color: #1B3C53; text-decoration: none; border-bottom: 1px solid #eee;">
+                                Mi Perfil
+                            </a>
+                            <a href="{% url 'notificaciones' %}" 
+                               style="display: block; padding: 0.75rem 1rem; color: #1B3C53; text-decoration: none; border-bottom: 1px solid #eee;">
+                                Notificaciones
+                            </a>
+                            {% if user.rol == 'administrador' %}
+                            <a href="{% url 'admin_dashboard' %}" 
+                               style="display: block; padding: 0.75rem 1rem; color: #1B3C53; text-decoration: none; border-bottom: 1px solid #eee;">
+                                Panel Admin
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'logout' %}" 
+                               style="display: block; padding: 0.75rem 1rem; color: #dc3545; text-decoration: none;">
+                                Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Contenido principal -->
+    <main class="container">
+        <!-- Mostrar mensajes del sistema -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Contenido específico de cada página -->
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center mt-2" style="padding: 2rem; background-color: #03102b; color: white; margin-top: 3rem;">
+        <p>2025 - Universidad Cooperativa de Colombia - Proyecto Gestión de Estudiantes y Notas</p>
+    </footer>
+
+    <!-- JavaScript básico -->
+    <script>
+        // Función para mostrar confirmaciones antes de eliminar
+        function confirmarEliminacion(mensaje) {
+            return confirm(mensaje || '¿Está seguro de que desea eliminar este elemento?');
+        }
+
+        // Función para marcar notificaciones como leídas
+        function marcarComoLeida(notificacionId) {
+            // Esta función se implementará cuando tengamos AJAX
+            console.log('Marcando notificación como leída:', notificacionId);
+        }
+
+        // Animación de entrada para las cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('fade-in');
+                }, index * 100);
+            });
+        });
+
+        // Colorear automáticamente columnas comunes (funciona también en admin si no hereda base_admin)
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('table').forEach(function (table) {
+                const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim().toLowerCase());
+                const idxEstado   = headers.indexOf('estado');
+                const idxPromedio = headers.indexOf('promedio');
+                const idxNota     = headers.indexOf('nota');
+
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    // Estado: Activo/Sí/True => verde, Inactivo/No/False => rojo
+                    if (idxEstado >= 0 && tr.children[idxEstado]) {
+                        const td = tr.children[idxEstado];
+                        const raw = (td.textContent || '').trim().toLowerCase();
+                        const esActivo   = ['activo','true','1','sí','si','yes'].some(v => raw.includes(v));
+                        const esInactivo = ['inactivo','false','0','no'].some(v => raw.includes(v));
+                        if (esActivo)  { td.style.color = '#28a745'; td.style.fontWeight = '600'; }
+                        if (esInactivo){ td.style.color = '#dc3545'; td.style.fontWeight = '600'; }
+                    }
+                    // Promedio
+                    if (idxPromedio >= 0 && tr.children[idxPromedio]) {
+                        const td = tr.children[idxPromedio];
+                        const n = parseFloat(td.textContent.replace(',', '.'));
+                        if (!isNaN(n)) {
+                            td.style.color = n >= 3.0 ? '#28a745' : '#dc3545';
+                            td.style.fontWeight = '700';
+                        }
+                    }
+                    // Nota
+                    if (idxNota >= 0 && tr.children[idxNota]) {
+                        const td = tr.children[idxNota];
+                        const n = parseFloat(td.textContent.replace(',', '.'));
+                        if (!isNaN(n)) {
+                            td.style.color = n >= 3.0 ? '#28a745' : '#dc3545';
+                            td.style.fontWeight = '700';
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Toggle del menú de usuario
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Cerrar el menú si se hace clic fuera
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('userMenu');
+            const button = event.target.closest('button');
+            
+            if (!button && menu && menu.style.display === 'block') {
+                menu.style.display = 'none';
+            }
+        });
+        
+        // Efecto hover en el menú desplegable
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuItems = document.querySelectorAll('#userMenu a');
+            menuItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#F9F3EF';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'white';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

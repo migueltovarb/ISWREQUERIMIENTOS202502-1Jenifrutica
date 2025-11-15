@@ -1,0 +1,120 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Mis Cursos{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #1B3C53; margin-bottom: 2rem;">Mis Cursos Inscritos</h2>
+    
+    {% if inscripciones %}
+        <div style="margin-bottom: 2rem; text-align: center;">
+            <p style="font-size: 1.1rem; color: #666;">
+                Estás inscrito en <strong style="color: #1B3C53;">{{ inscripciones.count }}</strong> curso{{ inscripciones.count|pluralize }}
+            </p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
+            {% for inscripcion in inscripciones %}
+            <div class="card" style="margin-bottom: 0; border-left: 5px solid #6B9BD1; transition: all 0.3s;" 
+                 onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.15)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';">
+                <div class="card-header" style="background: #1B3C53; color: white;">
+                    <h3 style="margin: 0; font-size: 1.4rem;">{{ inscripcion.curso.nombre }}</h3>
+                    <p style="margin: 0.5rem 0 0 0; opacity: 0.95; font-size: 1rem;">
+                        <strong>Código:</strong> {{ inscripcion.curso.codigo }}
+                    </p>
+                </div>
+                <div class="card-body">
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding: 0.75rem; background-color: #f8f9fa; border-radius: 8px;">
+                            <span style="font-size: 1.5rem;"></span>
+                            <div>
+                                <strong style="color: #1B3C53; display: block; font-size: 0.85rem;">Profesor:</strong>
+                                <span style="color: #666; font-size: 1rem;">{{ inscripcion.curso.profesor.first_name }} {{ inscripcion.curso.profesor.last_name }}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background-color: #f8f9fa; border-radius: 8px;">
+                            <span style="font-size: 1.5rem;"></span>
+                            <div>
+                                <strong style="color: #1B3C53; display: block; font-size: 0.85rem;">Créditos:</strong>
+                                <span style="color: #666; font-size: 1.2rem; font-weight: bold;">{{ inscripcion.curso.creditos }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="text-align: center; padding: 1.25rem; background: #f8f9fa; border-radius: 10px;">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: #1B3C53; margin-bottom: 0.25rem;">
+                                {{ inscripcion.total_calificaciones|default:0 }}
+                            </div>
+                            <small style="color: #666; font-size: 0.85rem;">Calificaciones</small>
+                        </div>
+                        <div style="text-align: center; padding: 1.25rem; background: 
+                            {% if inscripcion.promedio >= 4.0 %}#d4edda
+                            {% elif inscripcion.promedio >= 3.0 %}#fff3cd
+                            {% else %}#f8d7da{% endif %}; border-radius: 10px;">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: 
+                                {% if inscripcion.promedio >= 4.0 %}#155724
+                                {% elif inscripcion.promedio >= 3.0 %}#856404
+                                {% else %}#721c24{% endif %}; margin-bottom: 0.25rem;">
+                                {{ inscripcion.promedio|default:"--"|floatformat:1 }}
+                            </div>
+                            <small style="color: #666; font-size: 0.85rem;">Promedio</small>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'mis_calificaciones' %}?curso={{ inscripcion.curso.id }}" 
+                       class="btn btn-primary" style="width: 100%; text-align: center; padding: 1rem; font-size: 1.05rem;">
+                         Ver Calificaciones del Curso
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="{% url 'inscribirse_curso' %}" class="btn btn-secondary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">
+                 Inscribirse a Más Cursos
+            </a>
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body">
+                <div style="text-align: center; padding: 5rem 2rem;">
+                    <h3 style="color: #1B3C53; margin-bottom: 1.5rem; font-size: 2rem;">¡Aún no estás inscrito en ningún curso!</h3>
+                    <p style="color: #666; margin-bottom: 2.5rem; font-size: 1.15rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        Para comenzar tu periodo académico, explora los cursos disponibles y selecciona aquellos que deseas cursar.
+                    </p>
+                    <a href="{% url 'inscribirse_curso' %}" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.25rem 3rem;">
+                         Explorar Cursos Disponibles
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div style="text-align: center; margin-top: 2.5rem;">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary" style="padding: 0.875rem 2rem;">
+            Volver al Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+    // Animación de entrada para las tarjetas
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}

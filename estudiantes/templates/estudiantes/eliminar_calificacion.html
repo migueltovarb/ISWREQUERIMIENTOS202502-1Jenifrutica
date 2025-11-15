@@ -1,0 +1,131 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Eliminar Calificación{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #dc3545; margin-bottom: 2rem;">⚠️ Eliminar Calificación</h2>
+    
+    <div class="card">
+        <div class="card-header" style="background-color: #f8d7da; color: #721c24; border-left: 5px solid #dc3545;">
+            <h3 style="margin: 0;">Confirmación de Eliminación</h3>
+        </div>
+        <div class="card-body">
+            <p style="font-size: 1.1rem;"><strong>¿Está seguro de que desea eliminar esta calificación?</strong></p>
+            <p style="color: #856404; background-color: #fff3cd; padding: 1rem; border-radius: 5px; border-left: 4px solid #ffc107; margin: 1rem 0;">
+                <strong>Advertencia:</strong> Esta acción no se puede deshacer. El estudiante será notificado de la eliminación.
+            </p>
+            
+            <div style="background-color: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+                <h4 style="color: #1B3C53; margin-bottom: 1rem;">Detalles de la Calificación</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div>
+                        <strong>Estudiante:</strong><br>
+                        <span style="color: #666;">{{ calificacion.inscripcion.estudiante.first_name }} {{ calificacion.inscripcion.estudiante.last_name }}</span>
+                    </div>
+                    <div>
+                        <strong>Curso:</strong><br>
+                        <span style="color: #666;">{{ calificacion.inscripcion.curso.nombre }} ({{ calificacion.inscripcion.curso.codigo }})</span>
+                    </div>
+                    <div>
+                        <strong>Tipo de Evaluación:</strong><br>
+                        <span style="color: #666;">{{ calificacion.get_tipo_evaluacion_display }}</span>
+                    </div>
+                    <div>
+                        <strong>Calificación:</strong><br>
+                        <span style="font-weight: bold; font-size: 1.8rem; color: {% if calificacion.nota >= 3.0 %}#28a745{% else %}#dc3545{% endif %};">
+                            {{ calificacion.nota }}
+                        </span>
+                    </div>
+                    <div>
+                        <strong>Fecha de Evaluación:</strong><br>
+                        <span style="color: #666;">{{ calificacion.fecha_evaluacion|date:"d/m/Y"|default:"No especificada" }}</span>
+                    </div>
+                    <div>
+                        <strong>Registrada por:</strong><br>
+                        <span style="color: #666;">{{ calificacion.profesor.first_name }} {{ calificacion.profesor.last_name }}</span>
+                    </div>
+                </div>
+                
+                {% if calificacion.observaciones %}
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #dee2e6;">
+                    <strong>Observaciones:</strong><br>
+                    <em style="color: #666;">{{ calificacion.observaciones }}</em>
+                </div>
+                {% endif %}
+            </div>
+            
+            <form method="post" id="formEliminar">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="motivo" style="font-weight: bold; font-size: 1.05rem;">
+                        Motivo de Eliminación (obligatorio):
+                    </label>
+                    <textarea name="motivo" 
+                              id="motivo" 
+                              class="form-control" 
+                              rows="4" 
+                              required 
+                              maxlength="200"
+                              placeholder="Explique brevemente por qué se elimina esta calificación (máximo 200 caracteres)..."
+                              style="resize: vertical;"></textarea>
+                    <small style="color: #666; display: block; margin-top: 0.5rem;">
+                        Caracteres restantes: <span id="contador" style="font-weight: bold;">200</span>
+                    </small>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-danger" style="padding: 0.875rem 2.5rem; font-size: 1.05rem;">
+                         Confirmar Eliminación
+                    </button>
+                    <a href="{% url 'registrar_calificacion' calificacion.inscripcion.curso.id %}" 
+                       class="btn btn-secondary" style="padding: 0.875rem 2.5rem; font-size: 1.05rem;">
+                         Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Contador de caracteres en tiempo real
+    document.getElementById('motivo').addEventListener('input', function() {
+        const restantes = 200 - this.value.length;
+        const contadorElem = document.getElementById('contador');
+        contadorElem.textContent = restantes;
+        contadorElem.style.color = restantes < 50 ? '#dc3545' : restantes < 100 ? '#ffc107' : '#28a745';
+    });
+    
+    // Confirmación adicional antes de enviar
+    document.getElementById('formEliminar').addEventListener('submit', function(e) {
+        const motivo = document.getElementById('motivo').value.trim();
+        
+        if (!motivo || motivo.length < 10) {
+            e.preventDefault();
+            alert('El motivo debe tener al menos 10 caracteres para justificar la eliminación.');
+            return false;
+        }
+        
+        const confirmar = confirm(
+            ' CONFIRMACIÓN FINAL \n\n' +
+            '¿Está completamente seguro de eliminar esta calificación?\n\n' +
+            '• Esta acción NO se puede deshacer\n' +
+            '• El estudiante será notificado\n' +
+            '• Se registrará en el historial\n\n' +
+            'Presione OK para confirmar la eliminación.'
+        );
+        
+        if (!confirmar) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Resaltar el textarea al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('motivo').focus();
+    });
+</script>
+{% endblock %}

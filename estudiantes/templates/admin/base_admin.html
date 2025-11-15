@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .admin-sidebar {
+        background: #1B3C53;
+        min-height: calc(100vh - 56px);
+        padding: 20px 0;
+    }
+    .admin-sidebar .nav-link {
+        color: rgba(255,255,255,0.8);
+        padding: 12px 20px;
+        margin: 5px 15px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    .admin-sidebar .nav-link:hover,
+    .admin-sidebar .nav-link.active {
+        background: rgba(255,255,255,0.2);
+        color: white;
+    }
+    .admin-sidebar .nav-link i { margin-right: 10px; width: 20px; }
+    .stat-card { border-radius: 15px; padding: 20px; color: white; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.3s; }
+    .stat-card:hover { transform: translateY(-5px); }
+    .stat-card h3 { font-size: 2.5rem; margin: 10px 0; }
+    .stat-card p { margin: 0; opacity: 0.9; }
+    .table-actions .btn { margin: 0 2px; }
+    .admin-header {
+        background: #1B3C53;
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        border-radius: 0 0 20px 20px;
+    }
+
+    /* Refuerzo local (además de style.css) */
+    .admin-content .table td { color:#1B3C53; }
+    .admin-content .text-muted { color:#456882; }
+    
+    /* Badge por defecto tipo Bootstrap */
+    .admin-content .badge {
+        display: inline-block;
+        padding: 0.35em 0.6em;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+    }
+    
+    /* Variantes de badge (restauro colores originales) */
+    .admin-content .badge-primary { background-color: #1B3C53; color: #fff; }
+    .admin-content .badge-light { background-color: #F9F3EF; color: #1B3C53; border: 1px solid #D2C1B6; }
+    .admin-content .badge-secondary { background-color: #6c757d; color: #fff; }
+    .admin-content .badge-success { background-color: #28a745; color: #fff; }
+    .admin-content .badge-danger { background-color: #dc3545; color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block admin-sidebar">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'usuarios' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_usuarios_lista' %}">
+                            <i class="fas fa-users"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'cursos' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_cursos_lista' %}">
+                            <i class="fas fa-book"></i> Cursos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'inscripciones' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_inscripciones_lista' %}">
+                            <i class="fas fa-clipboard-list"></i> Inscripciones
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'calificaciones' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'admin_calificaciones_lista' %}">
+                            <i class="fas fa-graduation-cap"></i> Calificaciones
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'admin_historial_lista' %}active{% endif %}" href="{% url 'admin_historial_lista' %}">
+                            <i class="fas fa-history"></i> Historial
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'admin_reportes' or request.resolver_match.url_name == 'admin_generar_reporte' %}active{% endif %}" href="{% url 'admin_reportes' %}">
+                            <i class="fas fa-chart-bar"></i> Reportes
+                        </a>
+                    </li>
+                    <hr style="border-color: rgba(255,255,255,0.2);">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <main role="main" class="admin-content col-md-10 ml-sm-auto px-4">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block admin_content %}
+            {% endblock %}
+        </main>
+    </div>
+</div>
+
+<script>
+/* Colorear columnas del admin: Estado como badge, Nota/Promedio numéricos en su color */
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.admin-content table').forEach(function (table) {
+        const heads = Array.from(table.querySelectorAll('thead th')).map(th => (th.textContent || '').trim().toLowerCase());
+
+        // Buscar índices
+        const findIdx = (names) => {
+            for (let i = 0; i < heads.length; i++) {
+                const h = heads[i];
+                if (names.some(n => h === n || h.includes(n))) return i;
+            }
+            return -1;
+        };
+
+        const idxEstado = findIdx(['estado', 'estatus', 'activo', 'activa']);
+        const idxCreditos = findIdx(['créditos', 'creditos']);
+        const idxEstudiantes = findIdx(['estudiantes', 'inscritos']);
+        const idxNota = findIdx(['nota', 'calificación', 'calificacion']);
+        const idxPromedio = findIdx(['promedio']);
+        const idxTipo = findIdx(['tipo', 'tipo de evaluación', 'tipo evaluacion']);
+
+        table.querySelectorAll('tbody tr').forEach(function (tr) {
+            // ESTADO: solo envolver con badge si dice "Activo/Inactivo" textualmente
+            if (idxEstado >= 0 && tr.children[idxEstado]) {
+                const td = tr.children[idxEstado];
+                const raw = (td.textContent || '').trim().toLowerCase();
+                const esActivo = ['activo','true','sí','si','yes'].some(v => raw === v);
+                const esInactivo = ['inactivo','false','no'].some(v => raw === v);
+                if (esActivo) {
+                    td.innerHTML = '<span class="badge badge-success">Activo</span>';
+                } else if (esInactivo) {
+                    td.innerHTML = '<span class="badge badge-danger">Inactivo</span>';
+                }
+            }
+
+            // NOTA: si es numérico, colorear verde/rojo (no badge)
+            if (idxNota >= 0 && tr.children[idxNota]) {
+                const td = tr.children[idxNota];
+                const val = (td.textContent || '').trim();
+                const n = parseFloat(val.replace(',', '.'));
+                if (!isNaN(n)) {
+                    td.style.color = n >= 3.0 ? '#28a745' : '#dc3545';
+                    td.style.fontWeight = '700';
+                }
+            }
+
+            // PROMEDIO: si es numérico, colorear verde/rojo (no badge)
+            if (idxPromedio >= 0 && tr.children[idxPromedio]) {
+                const td = tr.children[idxPromedio];
+                const val = (td.textContent || '').trim();
+                const n = parseFloat(val.replace(',', '.'));
+                if (!isNaN(n)) {
+                    td.style.color = n >= 3.0 ? '#28a745' : '#dc3545';
+                    td.style.fontWeight = '700';
+                }
+            }
+
+            // TIPO: envolver en badge beige claro para que sea legible
+            if (idxTipo >= 0 && tr.children[idxTipo]) {
+                const td = tr.children[idxTipo];
+                // Si ya tiene un badge, lo reemplazo; si no, envuelvo el texto
+                const existingBadge = td.querySelector('.badge');
+                const texto = existingBadge ? existingBadge.textContent.trim() : td.textContent.trim();
+                if (texto) {
+                    td.innerHTML = `<span class="badge badge-light">${texto}</span>`;
+                }
+            }
+
+            // CRÉDITOS / ESTUDIANTES: badge beige claro
+            if (idxCreditos >= 0 && tr.children[idxCreditos]) {
+                const td = tr.children[idxCreditos];
+                const val = (td.textContent || '').trim();
+                if (val && !isNaN(val)) {
+                    td.innerHTML = `<span class="badge badge-light">${val}</span>`;
+                }
+            }
+            if (idxEstudiantes >= 0 && tr.children[idxEstudiantes]) {
+                const td = tr.children[idxEstudiantes];
+                const val = (td.textContent || '').trim();
+                if (val && !isNaN(val)) {
+                    td.innerHTML = `<span class="badge badge-light">${val}</span>`;
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

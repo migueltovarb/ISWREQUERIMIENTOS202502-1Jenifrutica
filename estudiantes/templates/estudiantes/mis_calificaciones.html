@@ -1,0 +1,209 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Mis Calificaciones - Sistema de Gestión de Notas{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #1B3C53; margin-bottom: 2rem;">Mis Calificaciones</h2>
+    
+    <!-- Resumen general -->
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+        <div class="stat-card">
+            <div class="stat-number">{{ promedio_general|floatformat:1 }}</div>
+            <div class="stat-label">Promedio General</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ total_calificaciones }}</div>
+            <div class="stat-label">Total Calificaciones</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ cursos_con_calificaciones }}</div>
+            <div class="stat-label">Cursos con Calificaciones</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ calificaciones_aprobadas }}</div>
+            <div class="stat-label">Calificaciones ≥ 3.0</div>
+        </div>
+    </div>
+
+    <!-- Botón de descarga de comprobante (US-013) -->
+    {% if total_calificaciones > 0 %}
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <a href="{% url 'descargar_comprobante' %}" class="btn btn-primary" style="font-size: 1.1rem;">
+             Descargar Comprobante en PDF
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Filtros -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Filtrar Calificaciones</h3>
+        </div>
+        <div class="card-body">
+            <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="curso">Curso:</label>
+                    <select name="curso" id="curso" class="form-control" style="width: auto;">
+                        <option value="">Todos los cursos</option>
+                        {% for curso in cursos_disponibles %}
+                            <option value="{{ curso.id }}" {% if request.GET.curso == curso.id|stringformat:"s" %}selected{% endif %}>
+                                {{ curso.nombre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="tipo_evaluacion">Tipo de Evaluación:</label>
+                    <select name="tipo_evaluacion" id="tipo_evaluacion" class="form-control" style="width: auto;">
+                        <option value="">Todos los tipos</option>
+                        <option value="parcial" {% if request.GET.tipo_evaluacion == 'parcial' %}selected{% endif %}>Parcial</option>
+                        <option value="final" {% if request.GET.tipo_evaluacion == 'final' %}selected{% endif %}>Final</option>
+                        <option value="taller" {% if request.GET.tipo_evaluacion == 'taller' or request.GET.tipo_evaluacion == 'trabajo' %}selected{% endif %}>Taller</option>
+                        <option value="participacion" {% if request.GET.tipo_evaluacion == 'participacion' %}selected{% endif %}>Participación</option>
+                        <option value="proyecto" {% if request.GET.tipo_evaluacion == 'proyecto' %}selected{% endif %}>Proyecto</option>
+                        <option value="quiz" {% if request.GET.tipo_evaluacion == 'quiz' %}selected{% endif %}>Quiz</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a href="{% url 'mis_calificaciones' %}" class="btn btn-secondary">Limpiar Filtros</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Calificaciones por curso -->
+    {% if calificaciones_por_curso %}
+        {% for curso_info in calificaciones_por_curso %}
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>{{ curso_info.curso.nombre }} ({{ curso_info.curso.codigo }})</h3>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <span style="background-color: #1B3C53; color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem;">
+                        Promedio: {{ curso_info.promedio|floatformat:1 }}
+                    </span>
+                    <span style="background-color: #6B9BD1; color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem;">
+                        {{ curso_info.calificaciones|length }} calificaciones
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if curso_info.calificaciones %}
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo de Evaluación</th>
+                                    <th>Calificación</th>
+                                    <th>Fecha</th>
+                                    <th>Observaciones</th>
+                                    <th>Registrada por</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for calificacion in curso_info.calificaciones %}
+                                <tr>
+                                    <td>{{ calificacion.get_tipo_evaluacion_display }}</td>
+                                    <td>
+                                        <span style="font-weight: bold; font-size: 1.1rem; color: 
+                                            {% if calificacion.nota >= 4.0 %}#28a745
+                                            {% elif calificacion.nota >= 3.0 %}#ffc107
+                                            {% else %}#dc3545{% endif %};">
+                                            {{ calificacion.nota }}
+                                        </span>
+                                    </td>
+                                    <td>{{ calificacion.fecha_registro|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if calificacion.observaciones %}
+                                            {{ calificacion.observaciones }}
+                                        {% else %}
+                                            <em style="color: #666;">Sin observaciones</em>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ calificacion.profesor.first_name }} {{ calificacion.profesor.last_name }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Estadísticas del curso -->
+                    <div style="margin-top: 1rem; padding: 1rem; background-color: #F9F3EF; border-radius: 5px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center;">
+                            <div>
+                                <strong style="color: #1B3C53;">Nota Más Alta:</strong><br>
+                                <span style="font-size: 1.2rem; color: #28a745;">{{ curso_info.nota_maxima }}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #1B3C53;">Nota Más Baja:</strong><br>
+                                <span style="font-size: 1.2rem; color: #dc3545;">{{ curso_info.nota_minima }}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #1B3C53;">Promedio:</strong><br>
+                                <span style="font-size: 1.2rem; color: 
+                                    {% if curso_info.promedio >= 3.0 %}#28a745{% else %}#dc3545{% endif %};">
+                                    {{ curso_info.promedio|floatformat:1 }}
+                                </span>
+                            </div>
+                            <div>
+                                <strong style="color: #1B3C53;">Estado:</strong><br>
+                                <span style="font-size: 1.2rem; color: 
+                                    {% if curso_info.promedio >= 3.0 %}#28a745{% else %}#dc3545{% endif %};">
+                                    {% if curso_info.promedio >= 3.0 %}Aprobado{% else %}Reprobado{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p style="text-align: center; color: #666; padding: 2rem;">
+                        No tienes calificaciones registradas en este curso aún.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <div class="card-body">
+                <p style="text-align: center; color: #666; padding: 3rem;">
+                    {% if request.GET.curso or request.GET.tipo_evaluacion %}
+                        No se encontraron calificaciones con los filtros aplicados.
+                    {% else %}
+                        No tienes calificaciones registradas aún.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Botón para volver al dashboard -->
+    <div class="text-center mt-2">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            Volver al Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+    // Función para resaltar las calificaciones según su valor
+    document.addEventListener('DOMContentLoaded', function() {
+        const calificaciones = document.querySelectorAll('td span[style*="font-weight: bold"]');
+        calificaciones.forEach(function(calificacion) {
+            const nota = parseFloat(calificacion.textContent);
+            if (nota >= 4.0) {
+                calificacion.style.backgroundColor = '#d4edda';
+                calificacion.style.padding = '0.25rem 0.5rem';
+                calificacion.style.borderRadius = '3px';
+            } else if (nota < 3.0) {
+                calificacion.style.backgroundColor = '#f8d7da';
+                calificacion.style.padding = '0.25rem 0.5rem';
+                calificacion.style.borderRadius = '3px';
+            }
+        });
+    });
+</script>
+{% endblock %}

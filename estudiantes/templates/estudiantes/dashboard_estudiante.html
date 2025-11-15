@@ -1,0 +1,184 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Dashboard Estudiante{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #1B3C53; margin-bottom: 2rem;">
+        Bienvenido, <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+    </h2>
+    
+    <!-- Estadísticas principales -->
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+        <div class="stat-card" style="background: #1B3C53; color: white;">
+            <div class="stat-number">{{ inscripciones.count }}</div>
+            <div class="stat-label">Cursos Inscritos</div>
+        </div>
+        
+        <div class="stat-card" style="background: #6B9BD1; color: white;">
+            <div class="stat-number">{{ calificaciones.count }}</div>
+            <div class="stat-label">Calificaciones</div>
+        </div>
+        
+        <div class="stat-card" style="background: #D2C1B6; color: #1B3C53;">
+            <div class="stat-number">{{ promedio_general|default:"--"|floatformat:1 }}</div>
+            <div class="stat-label">Promedio General</div>
+        </div>
+        
+        <div class="stat-card" style="background: #28a745; color: white;">
+            <div class="stat-number">{{ notificaciones.count }}</div>
+            <div class="stat-label">Notificaciones</div>
+        </div>
+    </div>
+    
+    <!-- Estado Académico destacado (US-024) -->
+    {% if promedio_general %}
+    <div class="card" style="margin-bottom: 2rem; border-left: 6px solid 
+        {% if promedio_general >= 3.5 %}#28a745
+        {% elif promedio_general >= 3.0 %}#ffc107
+        {% else %}#dc3545{% endif %};">
+        <div class="card-header" style="background: #1B3C53; color: white;">
+            <h3 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                 Mi Estado Académico
+            </h3>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap;">
+                <div style="text-align: center; flex: 0 0 180px;">
+                    <div style="font-size: 6rem; margin-bottom: 0.5rem;">
+                        {% if promedio_general >= 3.5 %}🟢
+                        {% elif promedio_general >= 3.0 %}🟠
+                        {% else %}🔴{% endif %}
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: bold; color: 
+                        {% if promedio_general >= 3.5 %}#28a745
+                        {% elif promedio_general >= 3.0 %}#ffc107
+                        {% else %}#dc3545{% endif %};">
+                        {% if promedio_general >= 3.5 %}Regular
+                        {% elif promedio_general >= 3.0 %}En Riesgo
+                        {% else %}Reprobado{% endif %}
+                    </div>
+                </div>
+                
+                <div style="flex: 1; min-width: 320px;">
+                    <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 1.5rem 0;">
+                        {% if promedio_general >= 3.5 %}
+                            ¡Excelente trabajo! Tu rendimiento académico es sobresaliente. Continúa con este nivel de dedicación.
+                        {% elif promedio_general >= 3.0 %}
+                            Tu rendimiento está en riesgo. Te recomendamos hablar con tus profesores y reforzar tus estudios.
+                        {% else %}
+                            Tu promedio está por debajo del mínimo. Es urgente que busques apoyo académico inmediato.
+                        {% endif %}
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a href="{% url 'estado_academico' %}" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">
+                            Ver Detalles Completos
+                        </a>
+                        <a href="{% url 'mis_calificaciones' %}" class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">
+                            Ver Calificaciones
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Accesos Rápidos (US-027) -->
+    <div class="card">
+        <div class="card-header">
+            <h3> Accesos Rápidos</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <a href="{% url 'mis_cursos' %}" class="btn btn-primary" style="padding: 1.25rem; text-align: center; font-size: 1.05rem;">
+                    Mis Cursos
+                </a>
+                <a href="{% url 'mis_calificaciones' %}" class="btn btn-primary" style="padding: 1.25rem; text-align: center; font-size: 1.05rem;">
+                    Mis Calificaciones
+                </a>
+                <a href="{% url 'inscribirse_curso' %}" class="btn btn-secondary" style="padding: 1.25rem; text-align: center; font-size: 1.05rem;">
+                    Inscribir Curso
+                </a>
+                <a href="{% url 'descargar_comprobante' %}" class="btn btn-secondary" style="padding: 1.25rem; text-align: center; font-size: 1.05rem;">
+                    Descargar PDF
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Últimas Calificaciones -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Últimas Calificaciones</h3>
+        </div>
+        <div class="card-body">
+            {% if calificaciones %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th>Tipo</th>
+                                <th>Calificación</th>
+                                <th>Fecha</th>
+                                <th>Profesor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for calif in calificaciones %}
+                            <tr>
+                                <td><strong>{{ calif.inscripcion.curso.nombre }}</strong></td>
+                                <td>{{ calif.get_tipo_evaluacion_display }}</td>
+                                <td>
+                                    <span style="font-weight: bold; font-size: 1.3rem; color: 
+                                        {% if calif.nota >= 4.0 %}#28a745
+                                        {% elif calif.nota >= 3.0 %}#ffc107
+                                        {% else %}#dc3545{% endif %};">
+                                        {{ calif.nota }}
+                                    </span>
+                                </td>
+                                <td>{{ calif.fecha_registro|date:"d/m/Y" }}</td>
+                                <td>{{ calif.profesor.first_name }} {{ calif.profesor.last_name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <a href="{% url 'mis_calificaciones' %}" class="btn btn-secondary">
+                        Ver Todas las Calificaciones →
+                    </a>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 3rem;">
+                    Aún no tienes calificaciones registradas.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Notificaciones Recientes -->
+    {% if notificaciones %}
+    <div class="card">
+        <div class="card-header">
+            <h3>SNotificaciones Recientes</h3>
+        </div>
+        <div class="card-body">
+            {% for notif in notificaciones %}
+            <div style="padding: 1rem; border-left: 4px solid #6B9BD1; background-color: {% if not notif.leida %}#e7f3ff{% else %}#f8f9fa{% endif %}; margin-bottom: 1rem; border-radius: 5px;">
+                <h4 style="color: #1B3C53; margin: 0 0 0.5rem 0;">{{ notif.titulo }}</h4>
+                <p style="margin: 0 0 0.5rem 0;">{{ notif.mensaje }}</p>
+                <small style="color: #666;">{{ notif.fecha_creacion|date:"d/m/Y H:i" }}</small>
+            </div>
+            {% endfor %}
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="{% url 'notificaciones' %}" class="btn btn-secondary">
+                    Ver Todas las Notificaciones →
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

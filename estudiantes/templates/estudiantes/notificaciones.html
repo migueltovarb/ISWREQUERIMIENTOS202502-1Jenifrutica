@@ -1,0 +1,317 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Notificaciones - Sistema de Gestión de Notas{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #1B3C53; margin-bottom: 2rem;">Mis Notificaciones</h2>
+    
+    <!-- Estadísticas de notificaciones -->
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_notificaciones }}</div>
+            <div class="stat-label">Total Notificaciones</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ notificaciones_no_leidas }}</div>
+            <div class="stat-label">No Leídas</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ notificaciones_leidas }}</div>
+            <div class="stat-label">Leídas</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-number">{{ notificaciones_hoy }}</div>
+            <div class="stat-label">Hoy</div>
+        </div>
+    </div>
+
+    <!-- Filtros y acciones -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Filtros y Acciones</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: end;">
+                <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="estado">Estado:</label>
+                        <select name="estado" id="estado" class="form-control" style="width: auto;">
+                            <option value="">Todas</option>
+                            <option value="no_leida" {% if request.GET.estado == 'no_leida' %}selected{% endif %}>No Leídas</option>
+                            <option value="leida" {% if request.GET.estado == 'leida' %}selected{% endif %}>Leídas</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="tipo">Tipo:</label>
+                        <select name="tipo" id="tipo" class="form-control" style="width: auto;">
+                            <option value="">Todos los tipos</option>
+                            <option value="calificacion" {% if request.GET.tipo == 'calificacion' %}selected{% endif %}>Calificaciones</option>
+                            <option value="sistema" {% if request.GET.tipo == 'sistema' %}selected{% endif %}>Sistema</option>
+                            <option value="academico" {% if request.GET.tipo == 'academico' %}selected{% endif %}>Académico</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a href="{% url 'notificaciones' %}" class="btn btn-secondary">Limpiar</a>
+                </form>
+                
+                <div style="margin-left: auto;">
+                    <button onclick="marcarTodasComoLeidas()" class="btn btn-secondary">
+                        Marcar Todas como Leídas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de notificaciones -->
+    {% if notificaciones %}
+        {% for notificacion in notificaciones %}
+        <div class="card notification-item {% if not notificacion.leida %}unread{% endif %}" 
+             onclick="marcarComoLeida({{ notificacion.id }})" 
+             style="cursor: pointer; margin-bottom: 1rem;">
+            <div class="card-body" style="position: relative;">
+                <!-- Indicador de no leída -->
+                {% if not notificacion.leida %}
+                <div style="position: absolute; top: 1rem; right: 1rem; width: 12px; height: 12px; background-color: #6B9BD1; border-radius: 50%;"></div>
+                {% endif %}
+                
+                <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <h4 style="color: #1B3C53; margin-bottom: 0.5rem; {% if not notificacion.leida %}font-weight: bold;{% endif %}">
+                            {{ notificacion.titulo }}
+                        </h4>
+                        <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+                            <small style="color: #666;">
+                                <strong>Fecha:</strong> {{ notificacion.fecha_creacion|date:"d/m/Y H:i" }}
+                            </small>
+                            <small style="color: #666;">
+                                <strong>Tipo:</strong> {{ notificacion.get_tipo_display|default:"General" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <p style="margin-bottom: 1rem; {% if not notificacion.leida %}font-weight: 500;{% endif %}">
+                    {{ notificacion.mensaje }}
+                </p>
+                
+                <!-- Información adicional si es una notificación de calificación -->
+                {% if notificacion.tipo == 'calificacion' and notificacion.calificacion %}
+                <div style="background-color: #F9F3EF; padding: 1rem; border-radius: 5px; margin-top: 1rem;">
+                    <h5 style="color: #1B3C53; margin-bottom: 0.5rem;">Detalles de la Calificación</h5>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem;">
+                        <div><strong>Curso:</strong> {{ notificacion.calificacion.inscripcion.curso.nombre }}</div>
+                        <div><strong>Tipo:</strong> {{ notificacion.calificacion.get_tipo_evaluacion_display }}</div>
+                        <div><strong>Calificación:</strong> 
+                            <span style="font-weight: bold; color: 
+                                {% if notificacion.calificacion.nota >= 3.0 %}#28a745{% else %}#dc3545{% endif %};">
+                                {{ notificacion.calificacion.nota }}
+                            </span>
+                        </div>
+                        <div><strong>Profesor:</strong> {{ notificacion.calificacion.registrada_por.first_name }} {{ notificacion.calificacion.registrada_por.last_name }}</div>
+                    </div>
+                    {% if notificacion.calificacion.observaciones %}
+                    <div style="margin-top: 0.5rem;">
+                        <strong>Observaciones:</strong> {{ notificacion.calificacion.observaciones }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <div style="display: flex; justify-content: between; align-items: center; margin-top: 1rem;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        {% if not notificacion.leida %}
+                        <button onclick="event.stopPropagation(); marcarComoLeida({{ notificacion.id }})" 
+                                class="btn btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">
+                            Marcar como Leída
+                        </button>
+                        {% else %}
+                        <span style="color: #28a745; font-size: 0.9rem;">
+                            Leída
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem;">
+                        {% if notificacion.tipo == 'calificacion' %}
+                        <a href="{% url 'mis_calificaciones' %}" 
+                           class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;"
+                           onclick="event.stopPropagation();">
+                            Ver Calificaciones
+                        </a>
+                        {% endif %}
+                        
+                        <button onclick="event.stopPropagation(); eliminarNotificacion({{ notificacion.id }})" 
+                                class="btn btn-danger" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Paginación (si es necesaria) -->
+        {% if notificaciones.has_other_pages %}
+        <div class="text-center mt-2">
+            <div style="display: inline-flex; gap: 0.5rem;">
+                {% if notificaciones.has_previous %}
+                    <a href="?page={{ notificaciones.previous_page_number }}" class="btn btn-secondary">Anterior</a>
+                {% endif %}
+                
+                <span style="padding: 0.75rem 1rem; background-color: #89004f; color: white; border-radius: 5px;">
+                    Página {{ notificaciones.number }} de {{ notificaciones.paginator.num_pages }}
+                </span>
+                
+                {% if notificaciones.has_next %}
+                    <a href="?page={{ notificaciones.next_page_number }}" class="btn btn-secondary">Siguiente</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <div class="card">
+            <div class="card-body">
+                <div style="text-align: center; padding: 3rem;">
+                    <h3 style="color: #1B3C53; margin-bottom: 0.5rem;">No tienes notificaciones</h3>
+                    <p style="color: #666;">
+                        {% if request.GET.estado or request.GET.tipo %}
+                            No se encontraron notificaciones con los filtros aplicados.
+                        {% else %}
+                            Cuando recibas nuevas notificaciones, aparecerán aquí.
+                        {% endif %}
+                    </p>
+                    {% if request.GET.estado or request.GET.tipo %}
+                    <a href="{% url 'notificaciones' %}" class="btn btn-secondary">
+                        Ver Todas las Notificaciones
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Botón para volver al dashboard -->
+    <div class="text-center mt-2">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            Volver al Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+    // Función para marcar una notificación como leída
+    function marcarComoLeida(notificacionId) {
+        // En una implementación real, esto sería una llamada AJAX
+        console.log('Marcando notificación como leída:', notificacionId);
+        
+        // Simular la acción
+        const notificacion = document.querySelector(`[onclick*="${notificacionId}"]`);
+        if (notificacion) {
+            notificacion.classList.remove('unread');
+            const indicador = notificacion.querySelector('div[style*="background-color: #ff69b4"]');
+            if (indicador) {
+                indicador.remove();
+            }
+            
+            // Actualizar el botón
+            const boton = notificacion.querySelector('button[onclick*="marcarComoLeida"]');
+            if (boton) {
+                boton.outerHTML = '<span style="color: #28a745; font-size: 0.9rem;">Leída</span>';
+            }
+        }
+        
+        // Actualizar contador en la navegación (si existe)
+        const contador = document.querySelector('.nav-bar [href*="notificaciones"] .badge');
+        if (contador) {
+            const actual = parseInt(contador.textContent) || 0;
+            if (actual > 0) {
+                contador.textContent = actual - 1;
+                if (actual - 1 === 0) {
+                    contador.style.display = 'none';
+                }
+            }
+        }
+    }
+
+    // Función para marcar todas las notificaciones como leídas
+    function marcarTodasComoLeidas() {
+        if (confirm('¿Está seguro de que desea marcar todas las notificaciones como leídas?')) {
+            // En una implementación real, esto sería una llamada AJAX
+            console.log('Marcando todas las notificaciones como leídas');
+            
+            // Simular la acción
+            const notificacionesNoLeidas = document.querySelectorAll('.notification-item.unread');
+            notificacionesNoLeidas.forEach(notificacion => {
+                notificacion.classList.remove('unread');
+                const indicador = notificacion.querySelector('div[style*="background-color: #ff69b4"]');
+                if (indicador) {
+                    indicador.remove();
+                }
+                
+                const boton = notificacion.querySelector('button[onclick*="marcarComoLeida"]');
+                if (boton) {
+                    boton.outerHTML = '<span style="color: #28a745; font-size: 0.9rem;">Leída</span>';
+                }
+            });
+            
+            // Mostrar mensaje de éxito
+            alert('Todas las notificaciones han sido marcadas como leídas.');
+            
+            // Recargar la página para actualizar las estadísticas
+            window.location.reload();
+        }
+    }
+
+    // Función para eliminar una notificación
+    function eliminarNotificacion(notificacionId) {
+        if (confirm('¿Está seguro de que desea eliminar esta notificación?')) {
+            // En una implementación real, esto sería una llamada AJAX
+            console.log('Eliminando notificación:', notificacionId);
+            
+            // Simular la eliminación
+            const notificacion = document.querySelector(`[onclick*="${notificacionId}"]`);
+            if (notificacion) {
+                notificacion.style.transition = 'opacity 0.3s, transform 0.3s';
+                notificacion.style.opacity = '0';
+                notificacion.style.transform = 'translateX(-100%)';
+                
+                setTimeout(() => {
+                    notificacion.remove();
+                }, 300);
+            }
+        }
+    }
+
+    // Función para filtrar notificaciones en tiempo real
+    function filtrarNotificaciones() {
+        const estado = document.getElementById('estado').value;
+        const tipo = document.getElementById('tipo').value;
+        
+        // En una implementación real, esto actualizaría la vista sin recargar la página
+        console.log('Filtrando por estado:', estado, 'y tipo:', tipo);
+    }
+
+    // Marcar automáticamente como leída al hacer clic (después de un delay)
+    document.addEventListener('DOMContentLoaded', function() {
+        const notificaciones = document.querySelectorAll('.notification-item');
+        notificaciones.forEach(notificacion => {
+            notificacion.addEventListener('click', function() {
+                if (this.classList.contains('unread')) {
+                    setTimeout(() => {
+                        const id = this.getAttribute('onclick').match(/\d+/)[0];
+                        marcarComoLeida(id);
+                    }, 1000); // Marcar como leída después de 1 segundo
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

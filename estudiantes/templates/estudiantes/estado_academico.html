@@ -1,0 +1,98 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Estado Académico{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #1B3C53; margin-bottom: 2rem;"> Mi Estado Académico</h2>
+    
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 3rem;">
+            <!-- Indicador visual grande -->
+            <div style="font-size: 8rem; margin-bottom: 1.5rem; animation: pulse 2s infinite;">
+                {% if color == 'green' %}🟢
+                {% elif color == 'orange' %}🟠
+                {% elif color == 'red' %}🔴
+                {% else %}⚪{% endif %}
+            </div>
+            
+            <h1 style="color: {{ color }}; margin-bottom: 1.5rem; font-size: 3.5rem; text-transform: uppercase; letter-spacing: 2px;">
+                {{ estado }}
+            </h1>
+            
+            {% if promedio_general %}
+            <div style="margin: 2.5rem 0;">
+                <div style="font-size: 5rem; font-weight: bold; color: #1B3C53; line-height: 1;">
+                    {{ promedio_general|floatformat:1 }}
+                </div>
+                <p style="color: #666; font-size: 1.5rem; margin-top: 0.5rem;">Promedio General</p>
+            </div>
+            {% endif %}
+            
+            <div style="background: #f8f9fa; padding: 2.5rem; border-radius: 15px; margin: 2.5rem auto; max-width: 750px; border-left: 6px solid {{ color }}; text-align: left;">
+                <div style="display: flex; align-items: start; gap: 1rem;">
+                    <div style="font-size: 2.5rem;"></div>
+                    <div>
+                        <p style="font-size: 1.2rem; line-height: 1.8; color: #333; margin: 0;">
+                            {{ mensaje }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{% url 'mis_calificaciones' %}" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">
+                     Ver Mis Calificaciones
+                </a>
+                <a href="{% url 'mis_cursos' %}" class="btn btn-secondary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">
+                     Mis Cursos
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">
+                     Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Criterios de Evaluación -->
+    <div class="card">
+        <div class="card-header">
+            <h3> Criterios de Evaluación del Estado Académico</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                <div style="padding: 2rem; border-left: 6px solid #28a745; background: #d4edda; border-radius: 8px;">
+                    <h4 style="color: #155724; margin-bottom: 1rem; font-size: 1.3rem;">🟢 Regular</h4>
+                    <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> ≥ 3.5</p>
+                    <p style="margin: 0; color: #155724; font-size: 0.95rem; line-height: 1.6;">
+                        Tu rendimiento es excelente. Continúa con este nivel de dedicación y aprovecha las oportunidades de aprendizaje. ¡Felicitaciones!
+                    </p>
+                </div>
+                
+                <div style="padding: 2rem; border-left: 6px solid #ffc107; background: #fff3cd; border-radius: 8px;">
+                    <h4 style="color: #856404; margin-bottom: 1rem; font-size: 1.3rem;">🟠 En Riesgo</h4>
+                    <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> 3.0 - 3.49</p>
+                    <p style="margin: 0; color: #856404; font-size: 0.95rem; line-height: 1.6;">
+                        Tu promedio está cerca del mínimo. Habla con tus profesores, asiste a tutorías y dedica más tiempo al estudio para mejorar.
+                    </p>
+                </div>
+                
+                <div style="padding: 2rem; border-left: 6px solid #dc3545; background: #f8d7da; border-radius: 8px;">
+                    <h4 style="color: #721c24; margin-bottom: 1rem; font-size: 1.3rem;">🔴 Reprobado</h4>
+                    <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> < 3.0</p>
+                    <p style="margin: 0; color: #721c24; font-size: 0.95rem; line-height: 1.6;">
+                        Es urgente que busques apoyo académico. Contacta a tu asesor académico y solicita ayuda inmediata para recuperar tu rendimiento.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<style>
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+</style>
+{% endblock %}

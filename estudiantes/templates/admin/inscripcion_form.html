@@ -1,0 +1,54 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}{{ action }} Inscripción{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4><i class="fas fa-clipboard-check"></i> {{ action }} Inscripción</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ form.estudiante.id_for_label }}">Estudiante *</label>
+                        {{ form.estudiante }}
+                        {% if form.estudiante.errors %}
+                            <div class="text-danger">{{ form.estudiante.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.curso.id_for_label }}">Curso *</label>
+                        {{ form.curso }}
+                        {% if form.curso.errors %}
+                            <div class="text-danger">{{ form.curso.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-check">
+                            {{ form.activo }}
+                            <label class="form-check-label" for="{{ form.activo.id_for_label }}">
+                                Inscripción Activa
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-save"></i> {{ action }} Inscripción
+                        </button>
+                        <a href="{% url 'admin_inscripciones_lista' %}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

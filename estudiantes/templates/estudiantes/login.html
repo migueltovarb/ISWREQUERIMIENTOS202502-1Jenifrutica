@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Sistema de Gestión de Notas</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h2 class="login-title">Iniciar Sesión</h2>
+            
+            <!-- Mostrar errores si los hay -->
+            {% if form.errors %}
+                <div class="alert alert-error">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Mostrar mensajes del sistema -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Formulario de login -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="username">Usuario:</label>
+                    <input type="text" 
+                           id="username" 
+                           name="username" 
+                           class="form-control" 
+                           required 
+                           placeholder="Ingrese su nombre de usuario"
+                           value="{{ form.username.value|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-control" 
+                           required 
+                           placeholder="Ingrese su contraseña">
+                </div>
+
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        Iniciar Sesión
+                    </button>
+                </div>
+            </form>
+
+            
+            <div class="text-center mt-2" style="color: #1B3C53; font-size: 0.9rem;">
+                <p><strong>Sistema TROLI - Gestión de Estudiantes y Notas</strong></p>
+                <p>Universidad Cooperativa de Colombia</p>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enfocar el campo de usuario al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').focus();
+        });
+
+        // Validación básica del formulario
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                e.preventDefault();
+                alert('Por favor, complete todos los campos.');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

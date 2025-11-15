@@ -1,0 +1,29 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Confirmar Desactivación{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h4><i class="fas fa-exclamation-triangle"></i> Confirmar Desactivación</h4>
+            </div>
+            <div class="card-body">
+                <p>¿Está seguro que desea desactivar al usuario <strong>{{ usuario.username }}</strong>?</p>
+                <p class="text-muted">Esta acción desactivará al usuario pero no eliminará sus datos.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-ban"></i> Sí, Desactivar
+                    </button>
+                    <a href="{% url 'admin_usuarios_lista' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

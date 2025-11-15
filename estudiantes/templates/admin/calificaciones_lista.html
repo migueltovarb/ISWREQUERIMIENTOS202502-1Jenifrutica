@@ -1,0 +1,85 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Gestión de Calificaciones{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Calificaciones</h2>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="form-inline">
+            <div class="form-group mr-3">
+                <label for="curso" class="mr-2">Curso:</label>
+                <select name="curso" id="curso" class="form-control" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for curso in cursos %}
+                        <option value="{{ curso.id }}" {% if curso_id == curso.id|stringformat:"s" %}selected{% endif %}>
+                            {{ curso.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group mr-3">
+                <label for="estudiante" class="mr-2">Estudiante:</label>
+                <select name="estudiante" id="estudiante" class="form-control" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    {% for estudiante in estudiantes %}
+                        <option value="{{ estudiante.id }}" {% if estudiante_id == estudiante.id|stringformat:"s" %}selected{% endif %}>
+                            {{ estudiante.get_full_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <a href="{% url 'admin_calificaciones_lista' %}" class="btn btn-outline-secondary">
+                Limpiar
+            </a>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Curso</th>
+                        <th>Tipo</th>
+                        <th>Nota</th>
+                        <th>Fecha</th>
+                        <th>Profesor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for calificacion in calificaciones %}
+                    <tr>
+                        <td>{{ calificacion.inscripcion.estudiante.get_full_name }}</td>
+                        <td><strong>{{ calificacion.inscripcion.curso.nombre }}</strong></td>
+                        <td>
+                            <!-- Forzar siempre azul -->
+                            <span class="badge badge-primary">{{ calificacion.get_tipo_evaluacion_display }}</span>
+                        </td>
+                        <td>
+                            <span style="font-weight:700; color:{% if calificacion.nota >= 3.0 %}#28a745{% else %}#dc3545{% endif %};">
+                                {{ calificacion.nota }}
+                            </span>
+                        </td>
+                        <td>{{ calificacion.fecha_evaluacion|date:"d/m/Y" }}</td>
+                        <td>{{ calificacion.profesor.get_full_name }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No hay calificaciones registradas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends 'estudiantes/base.html' %}
+
+{% block title %}Registrar Calificación - Sistema de Gestión de Notas{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilo para encabezados de tabla */
+    .table thead th {
+        background-color: #1B3C53;
+        color: white;
+        font-weight: bold;
+        padding: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h2 style="color: #1b3c53; margin-bottom: 2rem;">Registrar Calificación</h2>
+    
+    <div class="form-container">
+        <form method="post" id="calificacionForm">
+            {% csrf_token %}
+
+            {% if editar_obj %}
+                <input type="hidden" name="calificacion_id" value="{{ editar_obj.id }}">
+            {% endif %}
+            
+            <div class="form-group">
+                <label for="curso">Curso:</label>
+                <select name="curso" id="curso" class="form-control" required>
+                    <option value="">Seleccione un curso</option>
+                    {% for c in cursos %}
+                        <option value="{{ c.id }}" {% if selected_curso_id == c.id %}selected{% endif %}>
+                            {{ c.nombre }} ({{ c.codigo }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="estudiante">Estudiante:</label>
+                <select name="estudiante" id="estudiante" class="form-control" required>
+                    <option value="">Seleccione un estudiante</option>
+                    {% for insc in inscripciones %}
+                        <option value="{{ insc.estudiante.id }}" {% if selected_estudiante_id|stringformat:"s" == insc.estudiante.id|stringformat:"s" %}selected{% endif %}>
+                            {{ insc.estudiante.first_name }} {{ insc.estudiante.last_name }} ({{ insc.estudiante.username }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo_evaluacion">Tipo de Evaluación:</label>
+                <select name="tipo_evaluacion" id="tipo_evaluacion" class="form-control" required>
+                    <option value="">Seleccione el tipo</option>
+                    {% for key, label in tipos_evaluacion %}
+                        <option value="{{ key }}" {% if form_data.tipo_evaluacion == key %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="nota">Calificación (0.0 - 5.0):</label>
+                <input type="number" 
+                       name="nota" 
+                       id="nota" 
+                       class="form-control" 
+                       min="0.0" 
+                       max="5.0" 
+                       step="0.1" 
+                       required
+                       placeholder="Ej: 4.5"
+                       value="{{ form_data.nota|default:'' }}">
+                <small style="color: #666; font-size: 0.9rem;">
+                    Ingrese una calificación entre 0.0 y 5.0 (máximo un decimal)
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="observaciones">Observaciones (Opcional):</label>
+                <textarea name="observaciones" 
+                          id="observaciones" 
+                          class="form-control" 
+                          rows="3" 
+                          placeholder="Comentarios adicionales sobre la calificación...">{{ form_data.observaciones|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group text-center">
+                <button type="submit" class="btn btn-primary" style="margin-right: 1rem;">
+                    {% if editar_obj %}Actualizar Calificación{% else %}Registrar Calificación{% endif %}
+                </button>
+                <a href="{% url 'dashboard_profesor' %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Mis Últimas Calificaciones Registradas</h3>
+        </div>
+        <div class="card-body">
+            {% if calificaciones_recientes %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Estudiante</th>
+                                <th>Curso</th>
+                                <th>Tipo</th>
+                                <th>Calificación</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for calificacion in calificaciones_recientes %}
+                            <tr>
+                                <td>{{ calificacion.inscripcion.estudiante.first_name }} {{ calificacion.inscripcion.estudiante.last_name }}</td>
+                                <td>{{ calificacion.inscripcion.curso.nombre }}</td>
+                                <td>{{ calificacion.get_tipo_evaluacion_display }}</td>
+                                <td>
+                                    <span style="font-weight: bold; color: 
+                                        {% if calificacion.nota >= 3.0 %}#28a745{% else %}#dc3545{% endif %};">
+                                        {{ calificacion.nota }}
+                                    </span>
+                                </td>
+                                <td>{{ calificacion.fecha_registro|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'registrar_calificacion' calificacion.inscripcion.curso.id %}?editar={{ calificacion.id }}" 
+                                       class="btn btn-secondary" 
+                                       style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                        Editar
+                                    </a>
+                                    <a href="{% url 'eliminar_calificacion' calificacion.id %}" 
+                                       class="btn btn-danger" 
+                                       style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-left: 0.25rem;">
+                                        Eliminar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 2rem;">
+                    No has registrado calificaciones recientemente.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validación de la calificación
+    document.getElementById('nota').addEventListener('input', function() {
+        const nota = parseFloat(this.value);
+        const isValid = nota >= 0.0 && nota <= 5.0;
+        if (!isValid && this.value !== '') {
+            this.style.borderColor = '#89004f'; 
+            this.style.backgroundColor = '#F9F3EF';  
+        } else {
+            this.style.borderColor = '#D2C1B6'; 
+            this.style.backgroundColor = 'white';
+        }
+    });
+
+    // Confirmación antes de enviar
+    document.getElementById('calificacionForm').addEventListener('submit', function(e) {
+        const curso = document.getElementById('curso').value;
+        const estudiante = document.getElementById('estudiante').value;
+        const tipoEvaluacion = document.getElementById('tipo_evaluacion').value;
+        const nota = document.getElementById('nota').value;
+        if (!curso || !estudiante || !tipoEvaluacion || !nota) {
+            e.preventDefault();
+            alert('Por favor, complete todos los campos obligatorios.');
+            return false;
+        }
+        const n = parseFloat(nota);
+        if (isNaN(n) || n < 0.0 || n > 5.0) {
+            e.preventDefault();
+            alert('La calificación debe estar entre 0.0 y 5.0');
+            return false;
+        }
+        const confirmacion = confirm(
+            `{% if editar_obj %}¿Actualizar{% else %}¿Registrar{% endif %} la calificación ${nota}?`
+        );
+        if (!confirmacion) {
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}
