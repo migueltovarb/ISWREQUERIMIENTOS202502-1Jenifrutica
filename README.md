@@ -21,7 +21,7 @@ Sistema completo de gestión académica que permite la administración de estudi
 - Sistema de notificaciones
 - Perfiles personalizables por usuario
 
-Para más detalles, consulta el [README del proyecto](TROLI_GESTION_NOTAS/README.md).
+Para más detalles, el [README del proyecto](TROLI_GESTION_NOTAS/README.md).
 
 ---
 
