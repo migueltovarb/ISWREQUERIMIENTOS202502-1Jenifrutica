@@ -10,7 +10,7 @@ Sistema completo de gestión académica desarrollado en Django que permite la ad
 - **Profesor**: Registro de calificaciones y gestión de cursos
 - **Estudiante**: Consulta de calificaciones y notificaciones
 
-### Funcionalidades por Rol
+### Funcionalidades Generales por Rol
 
 #### Administrador
 - Dashboard con estadísticas del sistema
@@ -191,27 +191,6 @@ TROLI_GESTION_NOTAS/
 - CSS moderno con variables
 - Mensajes de Django integrados
 
-## Datos de Prueba Incluidos
-
-El sistema incluye:
-- 1 Administrador
-- 2 Profesores con cursos asignados
-- 8 Estudiantes inscritos en múltiples cursos
-- 3 Cursos académicos
-- 84 Calificaciones distribuidas
-- 6 Notificaciones de ejemplo
-
-## URLs Principales
-
-- `/` - Página de login
-- `/dashboard/estudiante/` - Dashboard del estudiante
-- `/dashboard/profesor/` - Dashboard del profesor  
-- `/dashboard/admin/` - Dashboard del administrador
-- `/mis-calificaciones/` - Consulta de notas (estudiantes)
-- `/registrar-calificacion/` - Registro de notas (profesores)
-- `/notificaciones/` - Gestión de notificaciones
-- `/perfil/` - Perfil de usuario
-- `/admin/` - Panel de administración Django
 
 ## Soporte y Desarrollo
 
