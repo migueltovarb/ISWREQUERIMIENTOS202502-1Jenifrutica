@@ -32,34 +32,34 @@
 {% block content %}
 <div class="container mt-4">
     <h1 style="color: #1B3C53; margin-bottom: 2rem;">
-        <i class="fas fa-chalkboard-teacher"></i> Bienvenido, Profesor {{ user.get_full_name }}
+        Bienvenido, Profesor {{ user.get_full_name }}
     </h1>
     
     <div class="row">
         <div class="col-md-3">
             <div class="stat-card" style="background: #1B3C53;">
-                <p><i class="fas fa-book"></i> Cursos</p>
+                <p>Cursos</p>
                 <h3>{{ total_cursos }}</h3>
             </div>
         </div>
         
         <div class="col-md-3">
             <div class="stat-card" style="background: #456882;">
-                <p><i class="fas fa-users"></i> Estudiantes</p>
+                <p>Estudiantes</p>
                 <h3>{{ total_estudiantes }}</h3>
             </div>
         </div>
         
         <div class="col-md-3">
             <div class="stat-card" style="background: #6B9BD1;">
-                <p><i class="fas fa-clipboard-check"></i> Calificaciones</p>
+                <p>Calificaciones</p>
                 <h3>{{ calificaciones_registradas }}</h3>
             </div>
         </div>
         
         <div class="col-md-3">
             <div class="stat-card" style="background: #D2C1B6; color: #1B3C53;">
-                <p><i class="fas fa-bell"></i> Notificaciones</p>
+                <p>Notificaciones</p>
                 <h3>{{ notificaciones_no_leidas }}</h3>
             </div>
         </div>

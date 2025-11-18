@@ -30,7 +30,7 @@ a:hover {
 
 /* Barra de navegación */
 .nav-bar {
-    background-color: #6B9BD1;
+    background-color: #456882;
     padding: 0.5rem 0;
     color: white;
 }
@@ -61,8 +61,8 @@ a:hover {
 }
 
 .card-header {
-    background-color: #1B3C53;
-    color: white;
+    background-color: #6B9BD1;
+    color: #1B3C53;
     padding: 1rem;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
@@ -80,7 +80,7 @@ a:hover {
 }
 
 .table thead {
-    background-color: #1B3C53;  /* Cambiado de azul claro a azul oscuro */
+    background-color: #1B3C53;
     color: white;
 }
 
@@ -88,7 +88,7 @@ a:hover {
     padding: 12px;
     text-align: left;
     font-weight: 600;
-    background-color: #1B3C53;  /* Asegurar que sea azul oscuro */
+    background-color: #1B3C53;
     color: white;
 }
 
@@ -115,6 +115,7 @@ a:hover {
     font-size: 1rem;
 }
 
+/* Botones */
 .btn {
     display: inline-block;
     padding: 0.75rem 1.5rem;
@@ -131,7 +132,7 @@ a:hover {
 }
 
 .btn-secondary {
-    background-color: #6c757d;
+    background-color: #456882;
     color: white;
 }
 
@@ -140,7 +141,7 @@ a:hover {
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268;
+    background-color: #6B9BD1;
 }
 
 /* Estilos adicionales */
@@ -170,5 +171,3 @@ a:hover {
         transform: translateY(0);
     }
 }
-
-/* ...existing code... */

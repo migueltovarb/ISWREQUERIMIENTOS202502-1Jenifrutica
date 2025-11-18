@@ -10,7 +10,7 @@
     <div class="dashboard-grid" style="grid-template-columns: 1fr 2fr; gap: 2rem; margin-bottom: 2rem;">
         <!-- Foto y datos básicos -->
         <div class="card">
-            <div class="card-header">
+            <div class="card-header" style="background-color: #6B9BD1; color: #1B3C53;">
                 <h3>Información Personal</h3>
             </div>
             <div class="card-body" style="text-align: center;">
@@ -23,15 +23,7 @@
                     {{ user.first_name }} {{ user.last_name }}
                 </h3>
                 
-                <div style="background-color: 
-                    {% if user.rol == 'estudiante' %}#F9F3EF
-                    {% elif user.rol == 'profesor' %}#D2C1B6
-                    {% else %}#6B9BD1{% endif %}; 
-                    color: 
-                    {% if user.rol == 'estudiante' %}#1B3C53
-                    {% elif user.rol == 'profesor' %}#456882
-                    {% else %}#F9F3EF{% endif %}; 
-                    padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; margin-bottom: 1rem; font-weight: bold;">
+                <div style="background-color: #D2C1B6; color: #1B3C53; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; margin-bottom: 1rem; font-weight: bold;">
                     {{ user.get_rol_display }}
                 </div>
                 
@@ -76,7 +68,7 @@
         
         <!-- Estadísticas del usuario -->
         <div class="card">
-            <div class="card-header">
+            <div class="card-header" style="background-color: #6B9BD1; color: #1B3C53;">
                 <h3>Estadísticas</h3>
             </div>
             <div class="card-body">
@@ -167,7 +159,7 @@
                 <!-- Actividad reciente -->
                 <div>
                     <h4 style="color: #1B3C53; margin-bottom: 1rem;">Actividad Reciente</h4>
-                    <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 200px; overflow-y: auto;">
+                    <div style="background-color: #e7f3ff; padding: 1rem; border-radius: 8px; max-height: 200px; overflow-y: auto;">
                         {% if actividad_reciente %}
                             {% for actividad in actividad_reciente %}
                             <div style="display: flex; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #e9ecef;">
@@ -191,7 +183,7 @@
     
     <!-- Configuración de cuenta -->
     <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="background-color: #6B9BD1; color: #1B3C53;">
             <h3>Configuración de Cuenta</h3>
         </div>
         <div class="card-body">
