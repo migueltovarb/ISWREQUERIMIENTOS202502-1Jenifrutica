@@ -10,9 +10,11 @@
         <div class="card-body" style="text-align: center; padding: 3rem;">
             <!-- Indicador visual grande -->
             <div style="font-size: 8rem; margin-bottom: 1.5rem; animation: pulse 2s infinite;">
-                {% if color == 'green' %}🟢
-                {% elif color == 'orange' %}🟠
-                {% elif color == 'red' %}🔴
+                {% if estado == 'Excelente' %}🟢
+                {% elif estado == 'Sobresaliente' %}🔵
+                {% elif estado == 'Bueno' %}🟣
+                {% elif estado == 'En Riesgo' %}🟠
+                {% elif estado == 'Reprobado' %}🔴
                 {% else %}⚪{% endif %}
             </div>
             
@@ -60,34 +62,45 @@
             <h3> Criterios de Evaluación del Estado Académico</h3>
         </div>
         <div class="card-body">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
                 <div style="padding: 2rem; border-left: 6px solid #28a745; background: #d4edda; border-radius: 8px;">
-                    <h4 style="color: #155724; margin-bottom: 1rem; font-size: 1.3rem;">🟢 Regular</h4>
-                    <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> ≥ 3.5</p>
+                    <h4 style="color: #155724; margin-bottom: 1rem; font-size: 1.3rem;">🟢 Excelente</h4>
+                    <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> ≥ 4.6</p>
                     <p style="margin: 0; color: #155724; font-size: 0.95rem; line-height: 1.6;">
-                        Tu rendimiento es excelente. Continúa con este nivel de dedicación y aprovecha las oportunidades de aprendizaje. ¡Felicitaciones!
+                        Tu rendimiento es excelente. Mantén este nivel y busca nuevos retos académicos.
                     </p>
                 </div>
-                
+                <div style="padding: 2rem; border-left: 6px solid #17a2b8; background: #d1ecf1; border-radius: 8px;">
+                    <h4 style="color: #0c5460; margin-bottom: 1rem; font-size: 1.3rem;">🔵 Sobresaliente</h4>
+                    <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> 4.0 - 4.59</p>
+                    <p style="margin: 0; color: #0c5460; font-size: 0.95rem; line-height: 1.6;">
+                        Tu rendimiento es sobresaliente. Sigue así y aprovecha oportunidades de aprendizaje.
+                    </p>
+                </div>
+                <div style="padding: 2rem; border-left: 6px solid #6B9BD1; background: #e7f3ff; border-radius: 8px;">
+                    <h4 style="color: #1B3C53; margin-bottom: 1rem; font-size: 1.3rem;">🟣 Bueno</h4>
+                    <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> 3.5 - 3.99</p>
+                    <p style="margin: 0; color: #1B3C53; font-size: 0.95rem; line-height: 1.6;">
+                        Tu rendimiento es bueno. Puedes mejorar aún más con dedicación.
+                    </p>
+                </div>
                 <div style="padding: 2rem; border-left: 6px solid #ffc107; background: #fff3cd; border-radius: 8px;">
                     <h4 style="color: #856404; margin-bottom: 1rem; font-size: 1.3rem;">🟠 En Riesgo</h4>
                     <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> 3.0 - 3.49</p>
                     <p style="margin: 0; color: #856404; font-size: 0.95rem; line-height: 1.6;">
-                        Tu promedio está cerca del mínimo. Habla con tus profesores, asiste a tutorías y dedica más tiempo al estudio para mejorar.
+                        Tu promedio está cerca del mínimo. Habla con tus profesores y dedica más tiempo al estudio.
                     </p>
                 </div>
-                
                 <div style="padding: 2rem; border-left: 6px solid #dc3545; background: #f8d7da; border-radius: 8px;">
                     <h4 style="color: #721c24; margin-bottom: 1rem; font-size: 1.3rem;">🔴 Reprobado</h4>
-                    <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> < 3.0</p>
+                    <p style="margin: 0.75rem 0; font-size: 1.05rem;"><strong>Promedio:</strong> &lt; 3.0</p>
                     <p style="margin: 0; color: #721c24; font-size: 0.95rem; line-height: 1.6;">
-                        Es urgente que busques apoyo académico. Contacta a tu asesor académico y solicita ayuda inmediata para recuperar tu rendimiento.
+                        Es urgente que busques apoyo académico. Contacta a tu asesor académico y solicita ayuda inmediata.
                     </p>
                 </div>
             </div>
         </div>
     </div>
-
 
 <style>
 @keyframes pulse {

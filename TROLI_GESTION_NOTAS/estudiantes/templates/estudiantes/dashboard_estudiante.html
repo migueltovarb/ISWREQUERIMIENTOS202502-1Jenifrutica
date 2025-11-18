@@ -34,7 +34,9 @@
     <!-- Estado Académico destacado (US-024) -->
     {% if promedio_general %}
     <div class="card" style="margin-bottom: 2rem; border-left: 6px solid 
-        {% if promedio_general >= 3.5 %}#28a745
+        {% if promedio_general >= 4.6 %}#28a745
+        {% elif promedio_general >= 4.0 %}#17a2b8
+        {% elif promedio_general >= 3.5 %}#6B9BD1
         {% elif promedio_general >= 3.0 %}#ffc107
         {% else %}#dc3545{% endif %};">
         <div class="card-header" style="background-color: #1B3C53; color: white;">
@@ -46,15 +48,21 @@
             <div style="display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap;">
                 <div style="text-align: center; flex: 0 0 180px;">
                     <div style="font-size: 6rem; margin-bottom: 0.5rem;">
-                        {% if promedio_general >= 3.5 %}🟢
+                        {% if promedio_general >= 4.6 %}🟢
+                        {% elif promedio_general >= 4.0 %}🔵
+                        {% elif promedio_general >= 3.5 %}🟣
                         {% elif promedio_general >= 3.0 %}🟠
                         {% else %}🔴{% endif %}
                     </div>
                     <div style="font-size: 1.8rem; font-weight: bold; color: 
-                        {% if promedio_general >= 3.5 %}#28a745
+                        {% if promedio_general >= 4.6 %}#28a745
+                        {% elif promedio_general >= 4.0 %}#17a2b8
+                        {% elif promedio_general >= 3.5 %}#6B9BD1
                         {% elif promedio_general >= 3.0 %}#ffc107
                         {% else %}#dc3545{% endif %};">
-                        {% if promedio_general >= 3.5 %}Regular
+                        {% if promedio_general >= 4.6 %}Excelente
+                        {% elif promedio_general >= 4.0 %}Sobresaliente
+                        {% elif promedio_general >= 3.5 %}Bueno
                         {% elif promedio_general >= 3.0 %}En Riesgo
                         {% else %}Reprobado{% endif %}
                     </div>
@@ -62,8 +70,12 @@
                 
                 <div style="flex: 1; min-width: 320px;">
                     <p style="font-size: 1.1rem; line-height: 1.9; margin: 0 0 1.5rem 0;">
-                        {% if promedio_general >= 3.5 %}
-                            ¡Excelente trabajo! Tu rendimiento académico es sobresaliente. Continúa con este nivel de dedicación.
+                        {% if promedio_general >= 4.6 %}
+                            ¡Felicitaciones! Tu rendimiento académico es excelente. Mantén este nivel.
+                        {% elif promedio_general >= 4.0 %}
+                            Tu rendimiento es sobresaliente. Sigue así y busca retos adicionales.
+                        {% elif promedio_general >= 3.5 %}
+                            Tu rendimiento es bueno. Puedes mejorar aún más con dedicación.
                         {% elif promedio_general >= 3.0 %}
                             Tu rendimiento está en riesgo. Te recomendamos hablar con tus profesores y reforzar tus estudios.
                         {% else %}

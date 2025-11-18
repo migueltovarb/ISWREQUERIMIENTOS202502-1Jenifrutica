@@ -235,6 +235,25 @@ def dashboard_estudiante(request):
     promedio_general = calificaciones.aggregate(Avg('nota'))['nota__avg']
     if promedio_general:
         promedio_general = round(promedio_general, 1)
+        # Determinar estado académico para el dashboard
+        if promedio_general >= 4.6:
+            estado_academico = 'Excelente'
+            color_estado = '#28a745'
+        elif promedio_general >= 4.0:
+            estado_academico = 'Sobresaliente'
+            color_estado = '#17a2b8'
+        elif promedio_general >= 3.5:
+            estado_academico = 'Bueno'
+            color_estado = '#6B9BD1'
+        elif promedio_general >= 3.0:
+            estado_academico = 'En Riesgo'
+            color_estado = 'orange'
+        else:
+            estado_academico = 'Reprobado'
+            color_estado = 'red'
+    else:
+        estado_academico = None
+        color_estado = 'grey'
     
     # Obtener notificaciones no leídas
     notificaciones = Notificacion.objects.filter(
@@ -247,6 +266,8 @@ def dashboard_estudiante(request):
         'calificaciones': calificaciones[:10],  # Últimas 10 calificaciones
         'promedio_general': promedio_general,
         'notificaciones': notificaciones,
+        'estado_academico': estado_academico,
+        'color_estado': color_estado,
     }
     
     return render(request, 'estudiantes/dashboard_estudiante.html', context)
@@ -876,7 +897,7 @@ def estudiantes_curso(request, curso_id=None):
 
 @login_required
 def ver_estado_academico(request):
-    """Ver estado académico del estudiante (Regular/En Riesgo/Reprobado)"""
+    """Ver estado académico del estudiante (Excelente/Sobresaliente/Bueno/En Riesgo/Reprobado)"""
     if request.user.rol != 'estudiante':
         messages.error(request, 'Esta función es solo para estudiantes')
         return redirect('dashboard')
@@ -888,18 +909,26 @@ def ver_estado_academico(request):
         estado = 'Sin Calificaciones'
         color = 'grey'
         mensaje = 'Aún no tienes calificaciones registradas'
+    elif promedio_general >= 4.6:
+        estado = 'Excelente'
+        color = '#28a745'
+        mensaje = '¡Felicitaciones! Tu rendimiento académico es excelente. Mantén este nivel.'
+    elif promedio_general >= 4.0:
+        estado = 'Sobresaliente'
+        color = '#17a2b8'
+        mensaje = 'Tu rendimiento es sobresaliente. Sigue así y busca retos adicionales.'
     elif promedio_general >= 3.5:
-        estado = 'Regular'
-        color = 'green'
-        mensaje = '¡Excelente trabajo! Mantén tu buen rendimiento académico'
+        estado = 'Bueno'
+        color = '#6B9BD1'
+        mensaje = 'Tu rendimiento es bueno. Puedes mejorar aún más con dedicación.'
     elif promedio_general >= 3.0:
         estado = 'En Riesgo'
         color = 'orange'
-        mensaje = 'Tu rendimiento está en riesgo. Te recomendamos hablar con tus profesores y reforzar tus estudios'
+        mensaje = 'Tu rendimiento está en riesgo. Te recomendamos hablar con tus profesores y reforzar tus estudios.'
     else:
         estado = 'Reprobado'
         color = 'red'
-        mensaje = 'Tu promedio está por debajo del mínimo. Es urgente que busques apoyo académico'
+        mensaje = 'Tu promedio está por debajo del mínimo. Es urgente que busques apoyo académico.'
     
     context = {
         'estado': estado,
