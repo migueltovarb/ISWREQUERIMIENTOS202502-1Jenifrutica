@@ -78,6 +78,14 @@ python manage.py runserver
 6. **Acceder al sistema**
 Abrir navegador en: http://127.0.0.1:8000/
 
+### Despliegue en Producción
+
+El sistema está desplegado y disponible en:
+
+**[https://jenifufa.pythonanywhere.com/login](https://jenifufa.pythonanywhere.com/login)**
+
+Puedes acceder y probar el sistema directamente en esa URL.
+
 ## Credenciales de Acceso
 
 ### Administrador
