@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="fade-in">
-    <h2 style="color: #89004f; margin-bottom: 2rem;">Estudiantes de Mis Cursos</h2>
+    <h2 style="color: #1B3C53; margin-bottom: 2rem;">Estudiantes de Mis Cursos</h2>
     
     <!-- Selector de curso -->
     <div class="card">
@@ -44,26 +44,26 @@
     <!-- Información del curso seleccionado -->
     {% if curso_seleccionado %}
     <div class="card">
-        <div class="card-header" style="background: #89004f; color: white;">
+        <div class="card-header" style="background-color: #1B3C53; color: white;">
             <h3 style="margin: 0;">{{ curso_seleccionado.nombre }}</h3>
             <p style="margin: 0; opacity: 0.9;">Código: {{ curso_seleccionado.codigo }}</p>
         </div>
         <div class="card-body">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-                <div style="text-align: center; padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
-                    <h3 style="color: #89004f; margin: 0;">{{ total_estudiantes }}</h3>
+                <div style="text-align: center; padding: 1rem; background-color: #6B9BD1; border-radius: 5px;">
+                    <h3 style="color: #1B3C53; margin: 0;">{{ total_estudiantes }}</h3>
                     <p style="margin: 0; color: #666;">Estudiantes Inscritos</p>
                 </div>
-                <div style="text-align: center; padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
-                    <h3 style="color: #89004f; margin: 0;">{{ total_calificaciones }}</h3>
+                <div style="text-align: center; padding: 1rem; background-color: #6B9BD1; border-radius: 5px;">
+                    <h3 style="color: #1B3C53; margin: 0;">{{ total_calificaciones }}</h3>
                     <p style="margin: 0; color: #666;">Calificaciones Registradas</p>
                 </div>
-                <div style="text-align: center; padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
-                    <h3 style="color: #89004f; margin: 0;">{{ promedio_curso|floatformat:1 }}</h3>
+                <div style="text-align: center; padding: 1rem; background-color: #6B9BD1; border-radius: 5px;">
+                    <h3 style="color: #1B3C53; margin: 0;">{{ promedio_curso|floatformat:1 }}</h3>
                     <p style="margin: 0; color: #666;">Promedio del Curso</p>
                 </div>
-                <div style="text-align: center; padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
-                    <h3 style="color: #89004f; margin: 0;">{{ estudiantes_aprobados }}</h3>
+                <div style="text-align: center; padding: 1rem; background-color: #6B9BD1; border-radius: 5px;">
+                    <h3 style="color: #1B3C53; margin: 0;">{{ estudiantes_aprobados }}</h3>
                     <p style="margin: 0; color: #666;">Estudiantes Aprobados</p>
                 </div>
             </div>
@@ -99,7 +99,7 @@
                                 </td>
                                 <td>{{ estudiante_info.estudiante.email }}</td>
                                 <td style="text-align: center;">
-                                    <span style="background-color: #c33b80; color: white; padding: 0.25rem 0.5rem; border-radius: 10px; font-size: 0.9rem;">
+                                    <span style="background-color: #456882; color: white; padding: 0.25rem 0.5rem; border-radius: 10px; font-size: 0.9rem;">
                                         {{ estudiante_info.total_calificaciones }}
                                     </span>
                                 </td>
@@ -171,8 +171,8 @@
         </div>
         <div class="card-body">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-                <div style="padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
-                    <h4 style="color: #89004f; margin-bottom: 0.5rem;">Distribución de Calificaciones</h4>
+                <div style="padding: 1rem; background-color: #D2C1B6; border-radius: 5px;">
+                    <h4 style="color: #1B3C53; margin-bottom: 0.5rem;">Distribución de Calificaciones</h4>
                     <ul style="margin: 0; padding-left: 1.5rem;">
                         <li><strong>Excelente (4.6-5.0):</strong> {{ stats.excelente }} estudiantes</li>
                         <li><strong>Sobresaliente (4.0-4.5):</strong> {{ stats.sobresaliente }} estudiantes</li>
@@ -182,8 +182,8 @@
                     </ul>
                 </div>
                 
-                <div style="padding: 1rem; background-color: #ffe0ff; border-radius: 5px;">
-                    <h4 style="color: #89004f; margin-bottom: 0.5rem;">Resumen General</h4>
+                <div style="padding: 1rem; background-color: #D2C1B6; border-radius: 5px;">
+                    <h4 style="color: #1B3C53; margin-bottom: 0.5rem;">Resumen General</h4>
                     <ul style="margin: 0; padding-left: 1.5rem;">
                         <li><strong>Nota más alta:</strong> {{ stats.nota_maxima }}</li>
                         <li><strong>Nota más baja:</strong> {{ stats.nota_minima }}</li>
@@ -207,7 +207,7 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
                     {% for curso in cursos_disponibles %}
                     <div class="card" style="margin-bottom: 0;">
-                        <div class="card-header" style="background: #ff69b4; color: #89004f;">
+                        <div class="card-header" style="background-color: #6B9BD1; color: #1B3C53;">
                             <h4 style="margin: 0;">{{ curso.nombre }}</h4>
                             <p style="margin: 0; opacity: 0.8;">{{ curso.codigo }}</p>
                         </div>

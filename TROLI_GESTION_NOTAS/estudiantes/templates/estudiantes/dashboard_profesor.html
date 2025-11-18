@@ -11,6 +11,7 @@
         margin-bottom: 20px;
         box-shadow: 0 4px 6px rgba(27, 60, 83, 0.2);
         transition: transform 0.3s;
+        background-color: #456882;
     }
     .stat-card:hover {
         transform: translateY(-5px);
@@ -26,6 +27,18 @@
         font-weight: bold;
         padding: 12px;
     }
+    .card-header {
+        background-color: #6B9BD1 !important;
+        color: #1B3C53 !important;
+    }
+    .notification-item.unread {
+        background-color: #e7f3ff !important;
+        border-left: 4px solid #6B9BD1 !important;
+    }
+    .notification-item {
+        background-color: #fff !important;
+        border-left: none !important;
+    }
 </style>
 {% endblock %}
 
@@ -37,28 +50,28 @@
     
     <div class="row">
         <div class="col-md-3">
-            <div class="stat-card" style="background: #1B3C53;">
+            <div class="stat-card" style="background-color: #1B3C53;">
                 <p>Cursos</p>
                 <h3>{{ total_cursos }}</h3>
             </div>
         </div>
         
         <div class="col-md-3">
-            <div class="stat-card" style="background: #456882;">
+            <div class="stat-card" style="background-color: #456882;">
                 <p>Estudiantes</p>
                 <h3>{{ total_estudiantes }}</h3>
             </div>
         </div>
         
         <div class="col-md-3">
-            <div class="stat-card" style="background: #6B9BD1;">
+            <div class="stat-card" style="background-color: #6B9BD1;">
                 <p>Calificaciones</p>
                 <h3>{{ calificaciones_registradas }}</h3>
             </div>
         </div>
         
         <div class="col-md-3">
-            <div class="stat-card" style="background: #D2C1B6; color: #1B3C53;">
+            <div class="stat-card" style="background-color: #D2C1B6; color: #1B3C53;">
                 <p>Notificaciones</p>
                 <h3>{{ notificaciones_no_leidas }}</h3>
             </div>
@@ -196,7 +209,7 @@
             <div class="notification-panel">
                 {% for notificacion in notificaciones_recientes %}
                 <div class="notification-item {% if not notificacion.leida %}unread{% endif %}">
-                    <h4 style="color: #89004f; margin-bottom: 0.5rem;">{{ notificacion.titulo }}</h4>
+                    <h4 style="color: #1B3C53; margin-bottom: 0.5rem;">{{ notificacion.titulo }}</h4>
                     <p style="margin-bottom: 0.5rem;">{{ notificacion.mensaje }}</p>
                     <small style="color: #666;">{{ notificacion.fecha_creacion|date:"d/m/Y H:i" }}</small>
                 </div>
@@ -219,19 +232,19 @@
         <div class="card-body">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
                 <div>
-                    <strong style="color: #89004f;">Nombre Completo:</strong><br>
+                    <strong style="color: #1B3C53;">Nombre Completo:</strong><br>
                     {{ user.first_name }} {{ user.last_name }}
                 </div>
                 <div>
-                    <strong style="color: #89004f;">Email:</strong><br>
+                    <strong style="color: #1B3C53;">Email:</strong><br>
                     {{ user.email }}
                 </div>
                 <div>
-                    <strong style="color: #89004f;">Usuario:</strong><br>
+                    <strong style="color: #1B3C53;">Usuario:</strong><br>
                     {{ user.username }}
                 </div>
                 <div>
-                    <strong style="color: #89004f;">Rol:</strong><br>
+                    <strong style="color: #1B3C53;">Rol:</strong><br>
                     {{ user.get_rol_display }}
                 </div>
             </div>
