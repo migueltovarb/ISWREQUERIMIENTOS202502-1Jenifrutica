@@ -86,26 +86,6 @@ El sistema está desplegado y disponible en:
 
 Puedes acceder y probar el sistema directamente en esa URL.
 
-## Credenciales de Acceso
-
-### Administrador
-- **Usuario**: admin
-- **Contraseña**: admin123
-- **Acceso**: Panel completo de administración
-
-### Profesores
-- **Usuario**: prof_matematicas
-- **Contraseña**: prof123
-- **Cursos**: Matemáticas Avanzadas, Álgebra Linear
-
-- **Usuario**: prof_fisica
-- **Contraseña**: prof123
-- **Cursos**: Física Cuántica
-
-### Estudiantes
-- **Usuario**: estudiante1 a estudiante8
-- **Contraseña**: est123
-- **Acceso**: Dashboard estudiantil y consulta de notas
 
 ## Estructura del Proyecto
 
